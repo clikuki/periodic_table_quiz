@@ -112,8 +112,47 @@ const fixedElements = elements.map((e) => {
 	};
 });
 
+/**
+ * # Question Types
+ * VALUE - Enter close value
+ * OWNER - Enter the element which this value belongs to
+ * COMPARE - Given two elements, select the element with a higher value
+ * BOOLEAN - Is the property applicatble to this element?
+ *
+ * # Ideas
+ * MATCH - match a value to 2 or more elements
+ * CATEGORY - for fields with limited value set
+ */
+const actions = {
+	AtomicNumber: ["VALUE", "OWNER", "COMPARE"],
+	Element: ["VALUE", "OWNER"],
+	Symbol: ["VALUE", "OWNER"],
+	AtomicMass: ["VALUE", "COMPARE"],
+	NumberOfNeutrons: ["VALUE", "COMPARE"],
+	NumberOfProtons: ["VALUE", "COMPARE"],
+	NumberOfElectrons: ["VALUE", "COMPARE"],
+	Period: ["VALUE"],
+	Group: ["VALUE"],
+	Phase: ["VALUE"],
+	Radioactive: ["BOOLEAN"],
+	Natural: ["BOOLEAN"],
+	ElementCategory: ["VALUE"],
+	ChemicalGroup: ["VALUE"],
+	AtomicRadius: ["COMPARE"],
+	Electronegativity: ["COMPARE"],
+	IonizationEnergy: ["COMPARE"],
+	Density: ["COMPARE"],
+	MeltingPoint: ["COMPARE"],
+	BoilingPoint: ["COMPARE"],
+	StableIsotopes: ["COMPARE"],
+	SpecificHeat: ["COMPARE"],
+	NumberOfShells: ["COMPARE"],
+	NumberOfValence: ["COMPARE"],
+};
+
 const newData = {
 	Fields: fields,
+	Actions: actions,
 	Elements: fixedElements,
 };
 
