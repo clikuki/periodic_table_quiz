@@ -46,8 +46,6 @@ const elements = JSON.parse(fs.readFileSync(dataURI).toString());
 
 const fields = [
 	"AtomicNumber",
-	"Element",
-	"Symbol",
 	"AtomicMass",
 	"NumberOfNeutrons",
 	"NumberOfProtons",
@@ -84,8 +82,6 @@ const fixedElements = elements.map((e) => {
 
 	return {
 		AtomicNumber: +e.AtomicNumber,
-		Element: e.Element,
-		Symbol: e.Symbol,
 		AtomicMass: +e.AtomicMass,
 		NumberOfNeutrons: +e.NumberOfNeutrons,
 		NumberOfProtons: +e.NumberOfProtons,
@@ -125,8 +121,6 @@ const fixedElements = elements.map((e) => {
  */
 const actions = {
 	AtomicNumber: ["VALUE", "OWNER", "COMPARE"],
-	Element: ["VALUE", "OWNER"],
-	Symbol: ["VALUE", "OWNER"],
 	AtomicMass: ["VALUE", "COMPARE"],
 	NumberOfNeutrons: ["VALUE", "COMPARE"],
 	NumberOfProtons: ["VALUE", "COMPARE"],
