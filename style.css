@@ -1,0 +1,150 @@
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+  font-family: "Acme", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.backgrounds {
+	position: relative;
+}
+.backgrounds * {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: -1;
+	opacity: 0;
+	transition: background-image 1s, background-color 1s;
+}
+
+body[data-result="NORMAL"] .backgrounds .normal {
+	opacity: 1;
+}
+body[data-result="CORRECT"] .backgrounds .correct {
+	opacity: 1;
+}
+body[data-result="INCORRECT"] .backgrounds .incorrect {
+	opacity: 1;
+}
+
+.normal {
+	background-color: hsl(75, 100%, 50%);
+	background-image: linear-gradient(
+		to bottom,
+		hsl(60, 80%, 70%),
+		hsl(70, 100%, 50%)
+	);
+}
+.correct {
+	background-color: hsl(120, 80%, 70%);
+	background-image: linear-gradient(
+		to bottom,
+		hsl(110, 80%, 70%),
+		hsl(130, 100%, 50%)
+	);
+}
+.incorrect {
+	background-color: hsl(5, 100%, 50%);
+	background-image: linear-gradient(
+		to bottom,
+		hsl(0, 80%, 70%),
+		hsl(10, 100%, 50%)
+	);
+}
+
+.page-containers {
+	position: relative;
+	display: grid;
+	grid-template-areas: "O";
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
+
+.page-containers > section {
+	grid-area: O;
+	max-width: 80vw;
+	opacity: 0;
+	transition: opacity 1s;
+}
+
+.page-containers > [data-active] {
+	opacity: 1;
+}
+
+[data-field],
+[data-element],
+[data-answer] {
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+[data-page="VALUE"] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	font-size: 2rem;
+	text-align: center;
+	gap: 1ch;
+	height: 100%;
+	padding: 1rem;
+}
+
+[data-page="VALUE"] > .head {
+	position: absolute;
+	top: 2rem;
+}
+
+[data-page="VALUE"] .correction {
+	padding: .8rem 1rem;
+	width: 20ch
+}
+[data-page="VALUE"] .line {
+	border-bottom: 2px solid black;
+	border-radius: 0 0 2px 2px;
+}
+
+[data-page="VALUE"] .input {
+	flex: 1;
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1ch
+}
+.container.around {
+	justify-content: space-around;
+}
+.container.centered {
+	justify-content: center;
+}
+
+.card {
+	background-color: hsl(0, 100%, 95%);
+	border-radius: .5rem;
+	padding: .8rem 3rem;
+	box-shadow: .2ch .2ch 0;
+}
+
+input[type="text"] {
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	width: 10ch;
+	text-transform: uppercase;
+	border: none;
+	border-bottom: 2px solid black;
+	border-radius: 2px;
+	background-color: transparent;
+}
+input[type="text"]:focus-visible {
+	outline: none;
+}
