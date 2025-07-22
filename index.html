@@ -10,9 +10,9 @@
 		<link href="https://fonts.googleapis.com/css2?family=Acme&display=swap" rel="stylesheet">
 		<script src="build/index.js" type="module" defer></script>
 	</head>
-	<!-- <body data-result="INCORRECT"> -->
+	<body data-result="INCORRECT">
 	<!-- <body data-result="CORRECT"> -->
-	<body data-result="NORMAL">
+	<!-- <body data-result="NORMAL"> -->
 		<div class="backgrounds">
 			<div class="normal"></div>
 			<div class="correct"></div>
@@ -37,7 +37,7 @@
 					</div>
 				</div>
 			</section>
-			<section data-page="OWNER" data-active>
+			<section data-page="OWNER">
 				<div class="container around">
 					<div class="question card">
 						Which element has a<br><span data-field="">ATOMIC NUMBER</span> of <span data-value="">4</span>?
@@ -184,7 +184,23 @@
 					<button class="card" data-false>NO</button>
 				</div>
 			</section>
-			<section data-page="COMPARE"></section>
+			<section data-page="COMPARE" data-active>
+				<div class="container around">
+					<div class="question card" data-comparison="LOWER">
+						Which element has a <span class="lower">lower</span><span class="higher">higher</span> <span data-field="">FIELD</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="container horizontal around input">
+					<!-- data-incorrect , data-correct -->
+					<button class="card" data-value="A">A</button>
+					<button class="card" data-value="B">B</button>
+				</div>
+			</section>
 		</div>
 	</body>
 </html>

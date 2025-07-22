@@ -88,7 +88,7 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	text-transform: uppercase;
 }
 
-:where([data-page="VALUE"], [data-page="BOOLEAN"]) {
+:where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -98,37 +98,42 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	padding: 1rem;
 }
 
-:where([data-page="VALUE"], [data-page="BOOLEAN"]) .correction {
+:where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) .correction {
 	padding: .8rem 1rem;
 	width: 20ch;
-	opacity: 0;
+	transition: opacity 1s;
 }
-:where([data-page="VALUE"], [data-page="BOOLEAN"]) .line {
+:where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) .line {
 	border-bottom: 2px solid black;
 	border-radius: 0 0 2px 2px;
 }
-.incorrect :where([data-page="VALUE"], [data-page="BOOLEAN"]) .correction {
-	opacity: 1;
+[data-result="NORMAL"] :where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) .correction {
+	opacity: 0;
+	pointer-events: none;
 }
 
-[data-page="VALUE"] .input {
+:where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) .input {
+	gap: 3rem;
 	flex: 1;
 }
-
-[data-page="BOOLEAN"] .input {
-	gap: 3rem;
-}
-[data-page="BOOLEAN"] .input button {
+:where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input button {
 	width: 16rem;
 	height: 20rem;
 	font-size: 3rem;
 	transition: translate 300ms, opacity 1s;
 }
-[data-page="BOOLEAN"] .input button:where(:hover, [data-correct]) {
+:where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input button:where(:hover, [data-correct]) {
 	translate: 0 -1rem;
 }
-[data-page="BOOLEAN"] .input [data-incorrect] {
+:where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input [data-incorrect] {
 	opacity: .5;
+}
+
+[data-page="COMPARE"] [data-comparison="LOWER"] .higher {
+	display: none;
+}
+[data-page="COMPARE"] [data-comparison="HIGHER"] .lower {
+	display: none;
 }
 
 [data-page="OWNER"] {
