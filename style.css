@@ -121,7 +121,7 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 
 :where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input button {
 	position: relative;
-	font-size: 3rem;
+	font-size: 2.5rem;
 	transition: translate 300ms, opacity 1s;
 }
 :where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input button:where(:hover, [data-correct]) {
@@ -136,6 +136,7 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	left: 50%;
 	translate: -50%;
 	padding: .5rem 2rem;
+	font-size: 2rem;
 	background-color: hsl(50, 100%, 50%);
 	transition: top 1s, opacity 1s;
 }
