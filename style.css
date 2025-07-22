@@ -9,6 +9,7 @@ body {
   font-style: normal;
 }
 
+/* || BACKGROUNDS */
 .backgrounds {
 	position: relative;
 }
@@ -58,6 +59,7 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	);
 }
 
+/* || CONTAINERS */
 .page-containers {
 	position: relative;
 	display: grid;
@@ -116,9 +118,9 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	gap: 3rem;
 	flex: 1;
 }
+
 :where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input button {
-	width: 16rem;
-	height: 20rem;
+	position: relative;
 	font-size: 3rem;
 	transition: translate 300ms, opacity 1s;
 }
@@ -126,7 +128,20 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	translate: 0 -1rem;
 }
 :where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input [data-incorrect] {
-	opacity: .5;
+	opacity: .8;
+}
+:where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input [data-field-value] {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	translate: -50%;
+	padding: .5rem 2rem;
+	background-color: hsl(50, 100%, 50%);
+	transition: top 1s, opacity 1s;
+}
+[data-result="NORMAL"] :where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input [data-field-value] {
+	top: 50%;
+	opacity: 0;
 }
 
 [data-page="COMPARE"] [data-comparison="LOWER"] .higher {
@@ -279,9 +294,8 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 
 .card {
 	background-color: hsl(0, 100%, 100%);
-	border-radius: .5rem;
 	padding: .8rem 3rem;
-	box-shadow: .2ch .2ch 0;
+	box-shadow: .2ch .2ch 0 black;
 }
 
 button {
