@@ -20,7 +20,7 @@ body {
 	height: 100vh;
 	z-index: -1;
 	opacity: 0;
-	transition: background-image 1s, background-color 1s;
+	transition: opacity 1s, background-color 1s;
 }
 
 body[data-result="NORMAL"] .backgrounds .normal {
@@ -73,13 +73,12 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	opacity: 0;
 	font-size: 2rem;
 	transition: opacity 1s;
-	user-select: none;
+	pointer-events: none;
 }
 
 .page-containers > [data-active] {
 	opacity: 1;
-	user-select: auto;
-	z-index: 0;
+	pointer-events: initial;
 }
 
 [data-field],
@@ -116,7 +115,6 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	flex: 1;
 }
 
-
 [data-page="BOOLEAN"] .input {
 	gap: 3rem;
 }
@@ -131,6 +129,127 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 }
 [data-page="BOOLEAN"] .input [data-incorrect] {
 	opacity: .5;
+}
+
+[data-page="OWNER"] {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	text-align: center;
+	gap: 1ch;
+	height: 100%;
+	padding: 1rem;
+}
+
+/* || PERIODIC TABLE */
+.table {
+	flex: 1;
+	display: grid;
+	grid-template-rows: repeat(10, 2.2rem);
+	grid-template-columns: repeat(18, 2.2rem);
+	font-size: 1.3rem;
+	justify-content: center;
+	align-content: center;
+	align-items: center;
+	transition: opacity 1s, box-shadow 1s;
+}
+.table .element {
+	width: 100%;
+	height: 100%;
+	color: transparent;
+}
+.table .element:where(:hover, [data-correct]) {
+	opacity: 1;
+	color: white;
+	filter: brightness(1.5);
+	scale: 1.2;
+	z-index: 1;
+}
+.table .element[data-correct] {
+	transition: scale 1s;
+	scale: 1.4;
+}
+:where([data-result="CORRECT"], [data-result="INCORRECT"]) .table .element:not([data-correct]) {
+	opacity: .5;
+	box-shadow: none;
+	
+	color: transparent;
+	filter: unset;
+	scale: unset;
+	z-index: initial;
+}
+.table [data-value="HELIUM"] {
+	grid-column: 18;
+}
+.table [data-value="BORON"],
+.table [data-value="ALUMINUM"] {
+	grid-column: 13;
+}
+.table [data-value="HAFNIUM"],
+.table [data-value="RUTHERFORDIUM"] {
+	grid-column: 4;
+}
+.spacer {
+	grid-column: 18;
+}
+.table [data-value="LANTHANUM"],
+.table [data-value="ACTINIUM"] {
+	grid-column: 4;
+}
+.table :nth-child(n + 90) {
+	translate: 0 -1rem;
+}
+
+/* .table .solid:hover{
+	color: #b5b5b5;
+}
+.table .liquid:hover{
+	color: #99F;
+}
+.table .gas:hover{
+	color: #F44;
+} */
+.table .unknown{
+	background-color: #777;
+}
+.table .alkali{
+	background-color:			#6c3b01;
+}
+.table .alkaline{
+	background-color:			#846011;
+}
+.table .lanthanoid{
+	background-color:		#402c17;
+}
+.table .actinoid{
+	background-color:			#732e4c;
+}
+.table .transition{
+	background-color:		#711019;
+}
+.table .poor{
+	background-color:				#003666;
+}
+.table .metalloid{
+	background-color:		#015146;
+}
+.table .nonmetal{
+	background-color:			#3e6418;
+}
+.table .noble{
+	background-color:			#3a2151;
+}
+.table .nocategory{
+	background-color:		#222;
+}
+
+:where([data-result="CORRECT"], [data-result="INCORRECT"]) .table .element {
+	box-shadow: none;
+}
+.table .element
+{
+	box-shadow: 2px 2px 0 1px black;
 }
 
 /* || UTILS */
