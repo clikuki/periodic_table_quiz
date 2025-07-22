@@ -34,11 +34,11 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 }
 
 .normal {
-	background-color: hsl(75, 100%, 50%);
+	background-color: hsl(220, 100%, 50%);
 	background-image: linear-gradient(
 		to bottom,
-		hsl(60, 80%, 70%),
-		hsl(70, 100%, 50%)
+		hsl(220, 80%, 70%),
+		hsl(225, 100%, 50%)
 	);
 }
 .correct {
@@ -71,11 +71,15 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	grid-area: O;
 	max-width: 80vw;
 	opacity: 0;
+	font-size: 2rem;
 	transition: opacity 1s;
+	user-select: none;
 }
 
 .page-containers > [data-active] {
 	opacity: 1;
+	user-select: auto;
+	z-index: 0;
 }
 
 [data-field],
@@ -85,55 +89,84 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	text-transform: uppercase;
 }
 
-[data-page="VALUE"] {
+:where([data-page="VALUE"], [data-page="BOOLEAN"]) {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	font-size: 2rem;
 	text-align: center;
 	gap: 1ch;
 	height: 100%;
 	padding: 1rem;
 }
 
-[data-page="VALUE"] > .head {
-	position: absolute;
-	top: 2rem;
-}
-
-[data-page="VALUE"] .correction {
+:where([data-page="VALUE"], [data-page="BOOLEAN"]) .correction {
 	padding: .8rem 1rem;
-	width: 20ch
+	width: 20ch;
+	opacity: 0;
 }
-[data-page="VALUE"] .line {
+:where([data-page="VALUE"], [data-page="BOOLEAN"]) .line {
 	border-bottom: 2px solid black;
 	border-radius: 0 0 2px 2px;
+}
+.incorrect :where([data-page="VALUE"], [data-page="BOOLEAN"]) .correction {
+	opacity: 1;
 }
 
 [data-page="VALUE"] .input {
 	flex: 1;
 }
 
+
+[data-page="BOOLEAN"] .input {
+	gap: 3rem;
+}
+[data-page="BOOLEAN"] .input button {
+	width: 16rem;
+	height: 20rem;
+	font-size: 3rem;
+	transition: translate 300ms, opacity 1s;
+}
+[data-page="BOOLEAN"] .input button:where(:hover, [data-correct]) {
+	translate: 0 -1rem;
+}
+[data-page="BOOLEAN"] .input [data-incorrect] {
+	opacity: .5;
+}
+
+/* || UTILS */
 .container {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 1ch
 }
+.container.horizontal {
+	flex-direction: row;
+}
 .container.around {
 	justify-content: space-around;
+}
+.container.between {
+	justify-content: space-between;
 }
 .container.centered {
 	justify-content: center;
 }
 
 .card {
-	background-color: hsl(0, 100%, 95%);
+	background-color: hsl(0, 100%, 100%);
 	border-radius: .5rem;
 	padding: .8rem 3rem;
 	box-shadow: .2ch .2ch 0;
 }
 
+button {
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	border: none;
+	cursor: pointer;
+}
 input[type="text"] {
 	font-family: inherit;
 	font-size: inherit;
