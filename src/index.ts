@@ -154,11 +154,11 @@ function handleValueQuestion(field: string) {
 
 		const inputEl = valuePage.querySelector("[data-input]") as HTMLInputElement;
 		inputEl.value = "";
-		inputEl.addEventListener("keydown", (e: KeyboardEvent) => {
+		inputEl.addEventListener("keydown", function inputCB(e: KeyboardEvent) {
 			if(e.key !== "Enter") return;
+			inputEl.removeEventListener("keydown", inputCB);
 			performAnswerChanges(isApproxEqual(inputEl.value, answer as string | number));
-		}, { once: true })
-
+		})
 		
 		revealPage(valuePage)
 	})
@@ -231,8 +231,8 @@ function handleCompareQuestion(field: string) {
 		elementRightEl.querySelector("[data-element-value]")!.textContent = String(elementRight[field]);
 
 		const leftIsCorrect = goForLower && lower === elementLeft || !goForLower && higher === elementLeft;
-		if(leftIsCorrect) elementRightEl.removeAttribute("data-incorrect");
-		else elementLeftEl.removeAttribute("data-incorrect");
+		if(leftIsCorrect) elementLeftEl.removeAttribute("data-incorrect");
+		else elementRightEl.removeAttribute("data-incorrect");
 
 		function clickCB(e: MouseEvent) {
 			const target = e.target as HTMLElement;
@@ -295,10 +295,10 @@ function nextQuestion() {
 		const action = getRandomAction(field);
 		
 		switch(action) {//continue; 
-			case "VALUE":		continue; handleValueQuestion(field); break;
-			case "OWNER":		continue; handleOwnerQuestion(field); break;
+			case "VALUE":		handleValueQuestion(field); break;
+			case "OWNER":		handleOwnerQuestion(field); break;
 			case "COMPARE": handleCompareQuestion(field); break;
-			case "BOOLEAN": continue; handleBooleanQuestion(field); break;
+			case "BOOLEAN": handleBooleanQuestion(field); break;
 			default: throw Error(`invalid "${field}" action: ${action}`);
 		}
 
