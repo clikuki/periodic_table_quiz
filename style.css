@@ -46,8 +46,8 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	background-color: hsl(120, 80%, 70%);
 	background-image: linear-gradient(
 		to bottom,
-		hsl(110, 80%, 70%),
-		hsl(130, 100%, 50%)
+		hsl(76, 85%, 61%),
+		hsl(140, 100%, 44%)
 	);
 }
 .incorrect {
@@ -151,17 +151,9 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	grid-template-rows: 1fr max-content;
 	width: 13rem;
 	height: 13rem;
+	color: white;
 	box-shadow: .6rem .6rem black;
 	transition: translate 300ms, opacity 1s;
-}
-[data-page="COMPARE"] .solid {
-	color: #ddd;
-}
-[data-page="COMPARE"] .liquid {
-	color: #5757ff;
-}
-[data-page="COMPARE"] .gas {
-	color: #F44;
 }
 [data-page="COMPARE"] [data-symbol] {
 	text-transform: unset;
@@ -272,7 +264,7 @@ body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 }
 
 .table .element {
-	box-shadow: 2px 2px black;
+	box-shadow: .2rem .2rem 0 1px black;
 }
 body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 	box-shadow: none;
