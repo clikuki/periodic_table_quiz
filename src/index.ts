@@ -268,8 +268,9 @@ function handleBooleanQuestion(field: string) {
 		else vowelIsNext.classList.add("hide")
 		
 		const value = element[field] as boolean;
-		const trueEl = booleanPage.querySelector("[data-value=\"TRUE\"]") as HTMLButtonElement;
-		const falseEl = booleanPage.querySelector("[data-value=\"FALSE\"]") as HTMLButtonElement;
+		const inputEl = booleanPage.querySelector(".input") as HTMLButtonElement; 
+		const trueEl = inputEl.querySelector("[data-value=\"TRUE\"]") as HTMLButtonElement;
+		const falseEl = inputEl.querySelector("[data-value=\"FALSE\"]") as HTMLButtonElement;
 		if(value) {
 			trueEl.removeAttribute("data-incorrect");
 			falseEl.setAttribute("data-incorrect", "");
@@ -278,8 +279,16 @@ function handleBooleanQuestion(field: string) {
 			trueEl.setAttribute("data-incorrect", "");
 		}
 
+		function clickCB(e: MouseEvent) {
+			const target = e.target;
+			if(target === inputEl) return;
+			inputEl.removeEventListener("click", clickCB);
+			performAnswerChanges(value && target === trueEl ||
+													!value && target === falseEl);
+		}
+
 		revealPage(booleanPage, () => {
-			
+			inputEl.addEventListener("click", clickCB)
 		})
 	})
 }
@@ -291,9 +300,9 @@ function nextQuestion() {
 		
 		switch(action) {//continue; 
 			case "VALUE":		continue; handleValueQuestion(field); break;
-			case "OWNER":		handleOwnerQuestion(field); break;
+			case "OWNER":		continue; handleOwnerQuestion(field); break;
 			case "COMPARE": continue; handleCompareQuestion(field); break;
-			case "BOOLEAN": continue; handleBooleanQuestion(field); break;
+			case "BOOLEAN": handleBooleanQuestion(field); break;
 			default: throw Error(`invalid "${field}" action: ${action}`);
 		}
 
