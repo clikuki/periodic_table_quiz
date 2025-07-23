@@ -114,31 +114,65 @@ function revealPage(page: HTMLElement, cb: () => void) {
 	page.setAttribute("data-active", "");
 }
 
+function isApproxEqual(input: string, value: string | number): boolean {
+	if(typeof value === 'string') {
+		// IDEA: Maybe add levenshetein distance checker to allow almost correct answers (typos)
+		return input.toLowerCase() === value.toLowerCase();
+	}
+	else {
+		return Math.abs(value - +input) < .5;
+	}
+}
+
+function performAnswerChanges(correct: boolean) {
+	if(correct) {
+		document.body.setAttribute("data-result", "CORRECT")
+	}
+	else {
+		document.body.setAttribute("data-result", "INCORRECT")
+	}
+
+	// Adding listener immediately causes it to fire immediately if previous event is also click event
+	requestAnimationFrame(() => {
+		document.body.addEventListener("click", () => nextQuestion(), { once: true });
+	})
+}
+
 function handleValueQuestion(field: string) {
-	document.body.setAttribute("data-result", "NORMAL")
 	hideAllPages(() => {
+		document.body.setAttribute("data-result", "NORMAL");
+		
+		const element = getRandomElement();
+		const answer = element[field];
+		if(typeof answer === 'boolean') throw Error(`"${field}" value of element "${element["Element"]}" is boolean`);
+
 		const fieldEl = valuePage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
 
 		const elementEl = valuePage.querySelector("[data-element]") as HTMLElement;
-		const element = getRandomElement();
 		elementEl.textContent = String(element["Element"]);
 
 		const answerEl = valuePage.querySelector("[data-answer]") as HTMLElement;
-		const answer = element[field];
 		answerEl.textContent = String(answer);
 
-		const inputEl = valuePage.querySelector("[data-input]") as HTMLElement;
+		const inputEl = valuePage.querySelector("[data-input]") as HTMLInputElement;
+		inputEl.value = "";
+
+		function inputCB(e: KeyboardEvent) {
+			if(e.key !== "Enter") return;
+			performAnswerChanges(isApproxEqual(inputEl.value, answer as string | number));
+		}
 
 		revealPage(valuePage, () => {
-			
+			inputEl.addEventListener("keydown", inputCB, { once: true })
 		})
 	})
 }
 
 function handleOwnerQuestion(field: string) {
-	document.body.setAttribute("data-result", "NORMAL")
 	hideAllPages(() => {
+		document.body.setAttribute("data-result", "NORMAL");
+		
 		const fieldEl = ownerPage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
 
@@ -152,22 +186,29 @@ function handleOwnerQuestion(field: string) {
 		if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
 		else vowelIsNext.classList.add("hide")
 
-		const prevAnswerEl = ownerPage.querySelector("[data-correct]") as HTMLElement | null;
+		const tableEl = ownerPage.querySelector(".table") as HTMLElement;
+		const prevAnswerEl = tableEl.querySelector("[data-correct]") as HTMLElement | null;
 		if(prevAnswerEl) prevAnswerEl.removeAttribute("data-correct");
 
-		const currAnswerEl = ownerPage.querySelector(`[data-value="${elementName}"]`) as HTMLElement;
+		const currAnswerEl = tableEl.querySelector(`[data-value="${elementName}"]`) as HTMLElement;
 		if(!currAnswerEl) console.error(`No element with name "${elementName}" exists!`)
 		else currAnswerEl.setAttribute("data-correct", "")
 
+		function tableClickCB(e: MouseEvent) {
+			if(e.target === tableEl) return;
+			performAnswerChanges(e.target === currAnswerEl);
+		}
+
 		revealPage(ownerPage, () => {
-			
+			tableEl.addEventListener("click", tableClickCB, { once: true });
 		})
 	})
 }
 
 function handleCompareQuestion(field: string) {
-	document.body.setAttribute("data-result", "NORMAL")
 	hideAllPages(() => {
+		document.body.setAttribute("data-result", "NORMAL");
+		
 		const questionEl = comparePage.querySelector(".question") as HTMLElement;
 		const goForLower = Math.random() < .5;
 		if(goForLower) questionEl.setAttribute("data-comparison", "LOWER")
@@ -211,8 +252,9 @@ function handleCompareQuestion(field: string) {
 }
 
 function handleBooleanQuestion(field: string) {
-	document.body.setAttribute("data-result", "NORMAL")
 	hideAllPages(() => {
+		document.body.setAttribute("data-result", "NORMAL");
+		
 		const fieldEl = booleanPage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
 
@@ -246,7 +288,7 @@ function nextQuestion() {
 		const field = getRandomField();
 		const action = getRandomAction(field);
 		
-		switch(action) {
+		switch(action) {//continue; 
 			case "VALUE":		continue; handleValueQuestion(field); break;
 			case "OWNER":		handleOwnerQuestion(field); break;
 			case "COMPARE": continue; handleCompareQuestion(field); break;
