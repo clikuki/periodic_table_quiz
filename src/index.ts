@@ -196,11 +196,12 @@ function handleOwnerQuestion(field: string) {
 
 		function tableClickCB(e: MouseEvent) {
 			if(e.target === tableEl) return;
+			tableEl.addEventListener("click", tableClickCB);
 			performAnswerChanges(e.target === currAnswerEl);
 		}
 
 		revealPage(ownerPage, () => {
-			tableEl.addEventListener("click", tableClickCB, { once: true });
+			tableEl.addEventListener("click", tableClickCB);
 		})
 	})
 }
