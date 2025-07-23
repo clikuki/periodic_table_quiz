@@ -171,8 +171,11 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 [data-result="NORMAL"] [data-page="COMPARE"] [data-element-value] {
 	opacity: 0;
 }
+[data-result="NORMAL"] [data-page="COMPARE"] .input button:not(:hover),
 body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
 	translate: 0 1rem;
+}
+body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
 	opacity: 0.5;
 }
 
