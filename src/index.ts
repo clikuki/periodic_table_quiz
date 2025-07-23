@@ -68,7 +68,7 @@ const valuePage = document.querySelector("[data-page=\"VALUE\"]") as HTMLElement
 const ownerPage = document.querySelector("[data-page=\"OWNER\"]") as HTMLElement;
 const booleanPage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLElement;
 const comparePage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLElement;
-const timeoutDelay = 610;
+const timeoutDelay = 800;
 
 function hideAllPages(cb: () => void) {
 	for(const page of [valuePage, ownerPage, comparePage, booleanPage]) {
@@ -79,7 +79,8 @@ function hideAllPages(cb: () => void) {
 			page.removeEventListener("transitionend", eventCB);
 			cb();
 		}, timeoutDelay)
-		const eventCB = () => {
+		const eventCB = (e: TransitionEvent) => {
+			if(e.target !== page) return;
 			clearTimeout(timer);
 			cb();
 		}
@@ -105,7 +106,8 @@ function revealPage(page: HTMLElement, cb: () => void) {
 		page.removeEventListener("transitionend", eventCB);
 		cb();
 	}, timeoutDelay)
-	const eventCB = () => {
+	const eventCB = (e: TransitionEvent) => {
+		if(e.target !== page) return;
 		clearTimeout(timer);
 		cb();
 	}
@@ -132,10 +134,9 @@ function performAnswerChanges(correct: boolean) {
 		document.body.setAttribute("data-result", "INCORRECT")
 	}
 
-	// Adding listener immediately causes it to fire immediately if previous event is also click event
-	requestAnimationFrame(() => {
-		document.body.addEventListener("click", () => nextQuestion(), { once: true });
-	})
+	requestAnimationFrame(() => document.body.addEventListener("click", () => {
+		nextQuestion();
+	}, { once: true }))
 }
 
 function handleValueQuestion(field: string) {
@@ -224,8 +225,9 @@ function handleCompareQuestion(field: string) {
 		const higher = elementLeft[field] > elementRight[field] ? elementLeft : elementRight;
 		answerEl.textContent = String((goForLower ? lower : higher)["Element"]);
 
-		const elementLeftEl = comparePage.querySelector(".input .element[data-value=\"A\"]") as HTMLElement;
-		const elementRightEl = comparePage.querySelector(".input .element[data-value=\"B\"]") as HTMLElement;		
+		const inputEl = comparePage.querySelector(".input") as HTMLButtonElement; 
+		const elementLeftEl = inputEl.querySelector(".input .element[data-left]") as HTMLElement;
+		const elementRightEl = inputEl.querySelector(".input .element[data-right]") as HTMLElement;		
 		const elementLeftCategory = chemTypeToCSS[elementLeft["ChemicalGroup"] as string];
 		const elementRightCategory = chemTypeToCSS[elementRight["ChemicalGroup"] as string];
 		elementLeftEl.className = `element ${elementLeftCategory}`;
@@ -235,19 +237,21 @@ function handleCompareQuestion(field: string) {
 		elementLeftEl.querySelector("[data-element-value]")!.textContent = String(elementLeft[field]);
 		elementRightEl.querySelector("[data-element-value]")!.textContent = String(elementRight[field]);
 
+		const leftIsCorrect = goForLower && lower === elementLeft || !goForLower && higher === elementLeft;
 		elementLeftEl.removeAttribute("data-incorrect")
 		elementRightEl.removeAttribute("data-incorrect")
-		if(goForLower) {
-			if(lower === elementLeft) elementRightEl.setAttribute("data-incorrect", "");
-			else elementLeftEl.setAttribute("data-incorrect", "")
-		}
-		else {
-			if(higher === elementLeft) elementRightEl.setAttribute("data-incorrect", "");
-			else elementLeftEl.setAttribute("data-incorrect", "")
+		if(leftIsCorrect) elementRightEl.setAttribute("data-incorrect", "");
+		else elementLeftEl.setAttribute("data-incorrect", "");
+
+		function clickCB(e: MouseEvent) {
+			const target = e.target as HTMLElement;
+			if(target === inputEl) return;
+			inputEl.removeEventListener("click", clickCB);
+			performAnswerChanges(!target.hasAttribute("data-incorrect"));
 		}
 
 		revealPage(comparePage, () => {
-			
+			inputEl.addEventListener("click", clickCB)
 		})
 	})
 }
@@ -301,8 +305,8 @@ function nextQuestion() {
 		switch(action) {//continue; 
 			case "VALUE":		continue; handleValueQuestion(field); break;
 			case "OWNER":		continue; handleOwnerQuestion(field); break;
-			case "COMPARE": continue; handleCompareQuestion(field); break;
-			case "BOOLEAN": handleBooleanQuestion(field); break;
+			case "COMPARE": handleCompareQuestion(field); break;
+			case "BOOLEAN": continue; handleBooleanQuestion(field); break;
 			default: throw Error(`invalid "${field}" action: ${action}`);
 		}
 

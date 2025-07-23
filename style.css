@@ -111,6 +111,7 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 [data-result="NORMAL"] :where([data-page="VALUE"], [data-page="COMPARE"]) .correction {
 	opacity: 0;
 	pointer-events: none;
+	transition: none;
 }
 
 :where([data-page="VALUE"], [data-page="BOOLEAN"]) .input {
@@ -161,6 +162,7 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	font-weight: 500;
 	grid-column: 1;
 	grid-row: 1 / span 2;
+	pointer-events: none;
 }
 [data-page="COMPARE"] [data-element-value] {
 	font-size: 2rem;
@@ -170,6 +172,7 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 }
 [data-result="NORMAL"] [data-page="COMPARE"] [data-element-value] {
 	opacity: 0;
+	transition: none;
 }
 [data-result="NORMAL"] [data-page="COMPARE"] .input button:not(:hover),
 body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
