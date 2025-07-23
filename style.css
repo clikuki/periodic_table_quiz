@@ -74,7 +74,7 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	max-width: 80vw;
 	opacity: 0;
 	font-size: 2rem;
-	transition: opacity 1s;
+	transition: opacity 600ms;
 	pointer-events: none;
 }
 
@@ -274,6 +274,10 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 }
 
 /* || UTILS */
+.hide {
+	display: none;
+}
+
 .container {
 	display: flex;
 	flex-direction: column;

@@ -16,7 +16,7 @@ function getRandomElement(): PeriodicElement {
 	return elements[randIntInRange(elements.length)];
 }
 
-function getRandomElements(n = 1): PeriodicElement[] {
+function getRandomElements(n: number): PeriodicElement[] {
 	const elems: PeriodicElement[] = [];
 	while (elems.length < n) {
 		const candidate = getRandomElement();
@@ -29,9 +29,10 @@ function getRandomField(): string {
 	return fields[randIntInRange(fields.length)];
 }
 
-function getRandomAction(field: string): string | null {
+type Actions = "VALUE" | "OWNER" | "COMPARE" | "BOOLEAN";
+function getRandomAction(field: string): Actions | null {
 	const actions = allActions[field];
-	return actions?.[randIntInRange(actions.length)] ?? null;
+	return actions?.[randIntInRange(actions.length)] as Actions ?? null;
 }
 
 function splitCapitalCase(str: string): string {
@@ -47,10 +48,119 @@ function splitCapitalCase(str: string): string {
 	return newStr;
 }
 
-// VALUE, OWNER, COMPARE, BOOLEAN
-function main() {
-	const field = getRandomField();
-	const action = getRandomAction(field);
+const valuePage = document.querySelector("[data-page=\"VALUE\"]") as HTMLElement;
+const ownerPage = document.querySelector("[data-page=\"OWNER\"]") as HTMLElement;
+const comparePage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLElement;
+const booleanPage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLElement;
+const timeoutDelay = 610;
+
+function hideAllPages(cb: () => void) {
+	for(const page of [valuePage, ownerPage, comparePage, booleanPage]) {
+		if(!page.hasAttribute("data-active")) continue;
+
+		// If transtion event fails to fire for any reason, timer will be used as fallback
+		const timer = setTimeout(() => {
+			page.removeEventListener("transitionend", eventCB);
+			cb();
+		}, timeoutDelay)
+		const eventCB = () => {
+			clearTimeout(timer);
+			cb();
+		}
+
+		page.addEventListener("transitionend", eventCB, { once: true });
+		page.removeAttribute("data-active");
+		return
+	}
+
+	// None are open, call by default
+	cb();
+} 
+
+function revealPage(page: HTMLElement, cb: () => void) {
+	if(page.hasAttribute("data-active")) {
+		// Page is already open, call by default
+		cb();
+		return;
+	}
+
+	// If transtion event fails to fire for any reason, timer will be used as fallback
+	const timer = setTimeout(() => {
+		page.removeEventListener("transitionend", eventCB);
+		cb();
+	}, timeoutDelay)
+	const eventCB = () => {
+		clearTimeout(timer);
+		cb();
+	}
+
+	page.addEventListener("transitionend", eventCB, { once: true });
+	page.setAttribute("data-active", "");
 }
 
-main();
+function handleValueQuestion(field: string) {
+	hideAllPages(() => {
+		const fieldEl = valuePage.querySelector("[data-field]") as HTMLElement;
+		fieldEl.textContent = splitCapitalCase(field);
+
+		const elementEl = valuePage.querySelector("[data-element]") as HTMLElement;
+		const element = getRandomElement();
+		elementEl.textContent = String(element["Element"]);
+
+		revealPage(valuePage, () => {
+			
+		})
+	})
+}
+function handleOwnerQuestion(field: string) {
+	hideAllPages(() => {
+		const fieldEl = ownerPage.querySelector("[data-field]") as HTMLElement;
+		fieldEl.textContent = splitCapitalCase(field);
+
+		const valueEl = ownerPage.querySelector("[data-value]") as HTMLElement;
+		const element = getRandomElement();
+		const value = element[field];
+		valueEl.textContent = String(value);
+
+		const vowelIsNext = ownerPage.querySelector(".vowel-is-next") as HTMLElement;
+		if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
+		else vowelIsNext.classList.add("hide")
+
+		revealPage(ownerPage, () => {
+			
+		})
+	})
+}
+function handleCompareQuestion(field: string) {
+	hideAllPages(() => {
+		revealPage(comparePage, () => {
+			
+		})
+	})
+}
+function handleBooleanQuestion(field: string) {
+	hideAllPages(() => {
+		revealPage(booleanPage, () => {
+			
+		})
+	})
+}
+
+function nextQuestion() {
+	while(true) {
+		const field = getRandomField();
+		const action = getRandomAction(field);
+
+		switch(action) {
+			case "VALUE":		continue; handleValueQuestion(field); break;
+			case "OWNER":		handleOwnerQuestion(field); break;
+			case "COMPARE": continue; handleCompareQuestion(field); break;
+			case "BOOLEAN": continue; handleBooleanQuestion(field); break;
+			default: throw Error(`invalid "${field}" action: ${action}`);
+		}
+
+		return;
+	}
+}
+
+nextQuestion();

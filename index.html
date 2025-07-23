@@ -10,9 +10,9 @@
 		<link href="https://fonts.googleapis.com/css2?family=Acme&display=swap" rel="stylesheet">
 		<script src="build/index.js" type="module" defer></script>
 	</head>
-	<body data-result="INCORRECT">
+	<!-- <body data-result="INCORRECT"> -->
 	<!-- <body data-result="CORRECT"> -->
-	<!-- <body data-result="NORMAL"> -->
+	<body data-result="NORMAL">
 		<div class="backgrounds">
 			<div class="normal"></div>
 			<div class="correct"></div>
@@ -40,7 +40,7 @@
 			<section data-page="OWNER">
 				<div class="container around">
 					<div class="question card">
-						Which element has a<br><span data-field="">ATOMIC NUMBER</span> of <span data-value="">4</span>?
+						Which element has a<span class="vowel-is-next hide">n</span><br><span data-field="">ATOMIC NUMBER</span> of <span data-value="">4</span>?
 					</div>
 				</div>
 				<div class="table">
@@ -170,7 +170,7 @@
 			<section data-page="BOOLEAN">
 				<div class="container around">
 					<div class="question card">
-						Is <span data-element="">ELEMENT</span> a <span data-field="">FIELD</span> element?
+						Is <span data-element="">ELEMENT</span> a<span class="vowel-is-next hide">n</span> <span data-field="">FIELD</span> element?
 					</div>
 					<div class="correction card">
 						<span class="text">Correct Answer</span>
@@ -184,7 +184,7 @@
 					<button class="card" data-false>NO</button>
 				</div>
 			</section>
-			<section data-page="COMPARE" data-active>
+			<section data-page="COMPARE">
 				<div class="container around">
 					<div class="question card" data-comparison="LOWER">
 						Which element has a <span class="lower">lower</span><span class="higher">higher</span> <span data-field="">FIELD</span>?

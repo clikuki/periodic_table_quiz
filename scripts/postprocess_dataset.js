@@ -55,15 +55,15 @@ const fields = [
 	"Phase",
 	"Radioactive",
 	"Natural",
-	"ElementCategory",
+	"ElementalCategory",
 	"ChemicalGroup",
 	"AtomicRadius",
 	"Electronegativity",
-	"ionizationEnergy",
+	"IonizationEnergy",
 	"Density",
 	"MeltingPoint",
 	"BoilingPoint",
-	"stableIsotopes",
+	"StableIsotopes",
 	"SpecificHeat",
 	"NumberOfShells",
 	"NumberOfValence",
@@ -74,7 +74,7 @@ const fixedElements = elements.map((e) => {
 	const isMetal = toBool(e.Metal);
 	const isNonmetal = toBool(e.Nonmetal);
 	const isMetalloid = toBool(e.Metalloid);
-	const ElementCategory =
+	const ElementalCategory =
 		(isMetal + isNonmetal + isMetalloid != 1 && "N/A") ||
 		(isMetal && "Metal") ||
 		(isNonmetal && "Nonmetal") ||
@@ -82,6 +82,7 @@ const fixedElements = elements.map((e) => {
 
 	return {
 		AtomicNumber: +e.AtomicNumber,
+ 		Element: e.Element,
 		AtomicMass: +e.AtomicMass,
 		NumberOfNeutrons: +e.NumberOfNeutrons,
 		NumberOfProtons: +e.NumberOfProtons,
@@ -91,20 +92,20 @@ const fixedElements = elements.map((e) => {
 		Phase: e.Phase,
 		Radioactive: toBool(e.Radioactive),
 		Natural: toBool(e.Natural),
-		ElementCategory,
+		ElementalCategory,
 		ChemicalGroup: e.Type,
 		AtomicRadius: +e.AtomicRadius,
 		Electronegativity: +e.Electronegativity,
-		ionizationEnergy: +e.ionizationEnergy,
+		IonizationEnergy: +e.ionizationEnergy,
 		Density: +e.Density,
 		MeltingPoint: +e.MeltingPoint,
 		BoilingPoint: +e.BoilingPoint,
-		stableIsotopes: +e.stableIsotopes,
-		// Discoverer: thisOr(e.Discoverer, "N/A"),
-		// Year: thisOr(e.Year, "N/A"),
+		StableIsotopes: +e.stableIsotopes,
 		SpecificHeat: +e.SpecificHeat,
 		NumberOfShells: +e.NumberOfShells,
 		NumberOfValence: +e.NumberOfValence,
+		// Discoverer: thisOr(e.Discoverer, "N/A"),
+		// Year: thisOr(e.Year, "N/A"),
 	};
 });
 
@@ -130,7 +131,7 @@ const actions = {
 	Phase: ["VALUE"],
 	Radioactive: ["BOOLEAN"],
 	Natural: ["BOOLEAN"],
-	ElementCategory: ["VALUE"],
+	ElementalCategory: ["VALUE"],
 	ChemicalGroup: ["VALUE"],
 	AtomicRadius: ["COMPARE"],
 	Electronegativity: ["COMPARE"],
