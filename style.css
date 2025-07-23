@@ -207,10 +207,11 @@ body:not([data-result="NORMAL"]) .table .element[data-correct] {
 body:not([data-result="NORMAL"]) .table .element[data-correct] {
 	transition: scale 1s;
 	scale: 1.4;
+	cursor: revert;
 }
 body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 	opacity: .5;
-	
+	cursor: revert;
 	color: transparent;
 	filter: unset;
 	scale: unset;
@@ -239,31 +240,31 @@ body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 }
 
 .element.alkali{
-	background-color:			#6c3b01;
+	background-color:#6c3b01;
 }
 .element.alkaline{
-	background-color:			#846011;
+	background-color:#846011;
 }
 .element.lanthanoid{
-	background-color:		#402c17;
+	background-color:#402c17;
 }
 .element.actinoid{
-	background-color:			#732e4c;
+	background-color:#732e4c;
 }
 .element.transition{
-	background-color:		#711019;
+	background-color:#711019;
 }
 .element.poor{
-	background-color:				#003666;
+	background-color:#003666;
 }
 .element.metalloid{
-	background-color:		#015146;
+	background-color:#015146;
 }
 .element.nonmetal{
-	background-color:			#3e6418;
+	background-color:#3e6418;
 }
 .element.noble{
-	background-color:			#3a2151;
+	background-color:#3a2151;
 }
 
 .table .element {
@@ -320,6 +321,7 @@ input[type="text"] {
 	border-bottom: 2px solid black;
 	border-radius: 2px;
 	background-color: transparent;
+	text-align: center;
 }
 input[type="text"]:focus-visible {
 	outline: none;
