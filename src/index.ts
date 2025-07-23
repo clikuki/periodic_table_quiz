@@ -94,22 +94,17 @@ function hideAllPages(cb: () => void) {
 	cb();
 } 
 
-function revealPage(page: HTMLElement, cb: () => void) {
-	if(page.hasAttribute("data-active")) {
-		// Page is already open, call by default
-		cb();
-		return;
-	}
+function revealPage(page: HTMLElement) {
+	// Page is already open, call by default
+	if(page.hasAttribute("data-active")) return;
 
 	// If transtion event fails to fire for any reason, timer will be used as fallback
 	const timer = setTimeout(() => {
 		page.removeEventListener("transitionend", eventCB);
-		cb();
 	}, timeoutDelay)
 	const eventCB = (e: TransitionEvent) => {
 		if(e.target !== page) return;
 		clearTimeout(timer);
-		cb();
 	}
 
 	page.addEventListener("transitionend", eventCB, { once: true });
@@ -126,7 +121,7 @@ function isApproxEqual(input: string, value: string | number): boolean {
 	}
 }
 
-function performAnswerChanges(correct: boolean) {
+function performAnswerChanges(correct: boolean, cb?: () => void) {
 	if(correct) {
 		document.body.setAttribute("data-result", "CORRECT")
 	}
@@ -135,6 +130,7 @@ function performAnswerChanges(correct: boolean) {
 	}
 
 	requestAnimationFrame(() => document.body.addEventListener("click", () => {
+		cb?.();
 		nextQuestion();
 	}, { once: true }))
 }
@@ -158,15 +154,13 @@ function handleValueQuestion(field: string) {
 
 		const inputEl = valuePage.querySelector("[data-input]") as HTMLInputElement;
 		inputEl.value = "";
-
-		function inputCB(e: KeyboardEvent) {
+		inputEl.addEventListener("keydown", (e: KeyboardEvent) => {
 			if(e.key !== "Enter") return;
 			performAnswerChanges(isApproxEqual(inputEl.value, answer as string | number));
-		}
+		}, { once: true })
 
-		revealPage(valuePage, () => {
-			inputEl.addEventListener("keydown", inputCB, { once: true })
-		})
+		
+		revealPage(valuePage)
 	})
 }
 
@@ -200,10 +194,9 @@ function handleOwnerQuestion(field: string) {
 			tableEl.addEventListener("click", tableClickCB);
 			performAnswerChanges(e.target === currAnswerEl);
 		}
+		tableEl.addEventListener("click", tableClickCB);
 
-		revealPage(ownerPage, () => {
-			tableEl.addEventListener("click", tableClickCB);
-		})
+		revealPage(ownerPage)
 	})
 }
 
@@ -238,21 +231,21 @@ function handleCompareQuestion(field: string) {
 		elementRightEl.querySelector("[data-element-value]")!.textContent = String(elementRight[field]);
 
 		const leftIsCorrect = goForLower && lower === elementLeft || !goForLower && higher === elementLeft;
-		elementLeftEl.removeAttribute("data-incorrect")
-		elementRightEl.removeAttribute("data-incorrect")
-		if(leftIsCorrect) elementRightEl.setAttribute("data-incorrect", "");
-		else elementLeftEl.setAttribute("data-incorrect", "");
+		if(leftIsCorrect) elementRightEl.removeAttribute("data-incorrect");
+		else elementLeftEl.removeAttribute("data-incorrect");
 
 		function clickCB(e: MouseEvent) {
 			const target = e.target as HTMLElement;
 			if(target === inputEl) return;
 			inputEl.removeEventListener("click", clickCB);
-			performAnswerChanges(!target.hasAttribute("data-incorrect"));
+			performAnswerChanges(!target.hasAttribute("data-incorrect"), () => {
+				elementLeftEl.setAttribute("data-incorrect", "")
+				elementRightEl.setAttribute("data-incorrect", "")
+			});
 		}
+		inputEl.addEventListener("click", clickCB)
 
-		revealPage(comparePage, () => {
-			inputEl.addEventListener("click", clickCB)
-		})
+		revealPage(comparePage)
 	})
 }
 
@@ -290,10 +283,9 @@ function handleBooleanQuestion(field: string) {
 			performAnswerChanges(value && target === trueEl ||
 													!value && target === falseEl);
 		}
+		inputEl.addEventListener("click", clickCB)
 
-		revealPage(booleanPage, () => {
-			inputEl.addEventListener("click", clickCB)
-		})
+		revealPage(booleanPage)
 	})
 }
 
