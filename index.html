@@ -172,19 +172,14 @@
 					<div class="question card">
 						Is <span data-element>ELEMENT</span> a<span class="vowel-is-next hide">n</span> <span data-field>FIELD</span> element?
 					</div>
-					<div class="correction card">
-						<span class="text">Correct Answer</span>
-						<div class="line"></div>
-						<span data-answer>ANSWER</span>
-					</div>
 				</div>
 				<div class="container horizontal around input">
-					<!-- data-incorrect , data-correct -->
-					<button class="card" data-true>YES</button>
-					<button class="card" data-false>NO</button>
+					<!-- data-incorrect -->
+					<button class="card" data-value="true">YES</button>
+					<button class="card" data-value="false">NO</button>
 				</div>
 			</section>
-			<section data-page="COMPARE" data-active>
+			<section data-page="COMPARE">
 				<div class="container around">
 					<div class="question card" data-comparison="LOWER">
 						Which element has a <span class="lower">lower</span><span class="higher">higher</span> <span data-field>FIELD</span>?
@@ -201,7 +196,7 @@
 						<span data-symbol>A</span>
 						<span data-element-value>A</span>
 					</button>
-					<button class="element" data-value="B" data-incorrect>
+					<button class="element" data-value="B">
 						<span data-symbol>B</span>
 						<span data-element-value>B</span>
 					</button>

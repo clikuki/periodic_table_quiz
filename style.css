@@ -76,6 +76,14 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	font-size: 2rem;
 	transition: opacity 600ms;
 	pointer-events: none;
+	
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 1ch;
+	height: 100%;
+	padding: 1rem;
 }
 
 .page-containers > [data-active] {
@@ -90,26 +98,17 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	text-transform: uppercase;
 }
 
-:where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	text-align: center;
-	gap: 1ch;
-	height: 100%;
-	padding: 1rem;
-}
-
-:where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) .correction {
+/* || MIX OF VARIOUS PAGES */
+:where([data-page="VALUE"], [data-page="COMPARE"]) .correction {
 	padding: .8rem 1rem;
 	width: 20ch;
-	transition: opacity 1s;
+	transition: opacity 700ms;
 }
-:where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) .line {
+:where([data-page="VALUE"], [data-page="COMPARE"]) .line {
 	border-bottom: 2px solid black;
 	border-radius: 0 0 2px 2px;
 }
-[data-result="NORMAL"] :where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) .correction {
+[data-result="NORMAL"] :where([data-page="VALUE"], [data-page="COMPARE"]) .correction {
 	opacity: 0;
 	pointer-events: none;
 }
@@ -118,45 +117,19 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	gap: 3rem;
 	flex: 1;
 }
-
-:where([data-page="BOOLEAN"]) .input button {
-	position: relative;
+[data-page="BOOLEAN"] .input button {
 	font-size: 2.5rem;
 	transition: translate 300ms, opacity 1s;
 }
-:where([data-page="BOOLEAN"]) .input button:where(:hover, [data-correct]) {
-	translate: 0 -1rem;
+[data-result="NORMAL"] [data-page="BOOLEAN"] .input :not(:hover),
+body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
+	translate: 0 1rem;
 }
-:where([data-page="BOOLEAN"]) .input [data-incorrect] {
-	opacity: .8;
-}
-/* :where([data-page="BOOLEAN"]) .input [data-field-value] {
-	position: absolute;
-	top: 100%;
-	left: 50%;
-	translate: -50%;
-	padding: .5rem 2rem;
-	font-size: 2rem;
-	background-color: hsl(50, 100%, 50%);
-	transition: top 1s, opacity 1s;
-}
-[data-result="NORMAL"] :where([data-page="BOOLEAN"]) .input [data-field-value] {
-	top: 50%;
-	opacity: 0;
-} */
-
-[data-page="OWNER"] {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	align-items: center;
-	text-align: center;
-	gap: 1ch;
-	height: 100%;
-	padding: 1rem;
+body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
+	opacity: 0.5;
 }
 
-
+/* || COMPARE PAGE */
 [data-page="COMPARE"] [data-comparison="LOWER"] .higher {
 	display: none;
 }
@@ -211,7 +184,7 @@ body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
 	opacity: 0.5;
 }
 
-/* || PERIODIC TABLE */
+/* || OWNER PAGE / PERIODIC TABLE */
 .table {
 	flex: 1;
 	display: grid;
@@ -228,20 +201,20 @@ body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
 	height: 100%;
 	color: transparent;
 }
-.table .element:where(:hover, [data-correct]) {
+[data-result="NORMAL"] .table .element:hover,
+body:not([data-result="NORMAL"]) .table .element[data-correct] {
 	opacity: 1;
 	color: white;
 	filter: brightness(1.5);
 	scale: 1.2;
 	z-index: 1;
 }
-.table .element[data-correct] {
+body:not([data-result="NORMAL"]) .table .element[data-correct] {
 	transition: scale 1s;
 	scale: 1.4;
 }
-:where([data-result="CORRECT"], [data-result="INCORRECT"]) .table .element:not([data-correct]) {
+body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 	opacity: .5;
-	box-shadow: none;
 	
 	color: transparent;
 	filter: unset;
@@ -305,9 +278,9 @@ body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
 }
 
 .table .element {
-	box-shadow: 2px 2px 0 1px black;
+	box-shadow: 2px 2px black;
 }
-:where([data-result="CORRECT"], [data-result="INCORRECT"]) .table .element {
+body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 	box-shadow: none;
 }
 
