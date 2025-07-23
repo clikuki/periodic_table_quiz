@@ -114,23 +114,23 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	pointer-events: none;
 }
 
-:where([data-page="VALUE"], [data-page="BOOLEAN"], [data-page="COMPARE"]) .input {
+:where([data-page="VALUE"], [data-page="BOOLEAN"]) .input {
 	gap: 3rem;
 	flex: 1;
 }
 
-:where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input button {
+:where([data-page="BOOLEAN"]) .input button {
 	position: relative;
 	font-size: 2.5rem;
 	transition: translate 300ms, opacity 1s;
 }
-:where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input button:where(:hover, [data-correct]) {
+:where([data-page="BOOLEAN"]) .input button:where(:hover, [data-correct]) {
 	translate: 0 -1rem;
 }
-:where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input [data-incorrect] {
+:where([data-page="BOOLEAN"]) .input [data-incorrect] {
 	opacity: .8;
 }
-:where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input [data-field-value] {
+/* :where([data-page="BOOLEAN"]) .input [data-field-value] {
 	position: absolute;
 	top: 100%;
 	left: 50%;
@@ -140,17 +140,10 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	background-color: hsl(50, 100%, 50%);
 	transition: top 1s, opacity 1s;
 }
-[data-result="NORMAL"] :where([data-page="BOOLEAN"], [data-page="COMPARE"]) .input [data-field-value] {
+[data-result="NORMAL"] :where([data-page="BOOLEAN"]) .input [data-field-value] {
 	top: 50%;
 	opacity: 0;
-}
-
-[data-page="COMPARE"] [data-comparison="LOWER"] .higher {
-	display: none;
-}
-[data-page="COMPARE"] [data-comparison="HIGHER"] .lower {
-	display: none;
-}
+} */
 
 [data-page="OWNER"] {
 	display: flex;
@@ -161,6 +154,61 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	gap: 1ch;
 	height: 100%;
 	padding: 1rem;
+}
+
+
+[data-page="COMPARE"] [data-comparison="LOWER"] .higher {
+	display: none;
+}
+[data-page="COMPARE"] [data-comparison="HIGHER"] .lower {
+	display: none;
+}
+[data-page="COMPARE"] .input {
+	width: 100%;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	justify-items: center;
+	align-items: center;
+	flex: 1;
+}
+[data-page="COMPARE"] .element {
+	display: grid;
+	justify-items: center;
+	align-items: center;
+	grid-template-rows: 1fr max-content;
+	width: 13rem;
+	height: 13rem;
+	box-shadow: .6rem .6rem black;
+	transition: translate 300ms, opacity 1s;
+}
+[data-page="COMPARE"] .solid {
+	color: #ddd;
+}
+[data-page="COMPARE"] .liquid {
+	color: #5757ff;
+}
+[data-page="COMPARE"] .gas {
+	color: #F44;
+}
+[data-page="COMPARE"] [data-symbol] {
+	text-transform: unset;
+	font-size: 5rem;
+	font-weight: 500;
+	grid-column: 1;
+	grid-row: 1 / span 2;
+}
+[data-page="COMPARE"] [data-element-value] {
+	font-size: 2rem;
+	transition: opacity 1s;
+	grid-column: 1;
+	grid-row: 2;
+}
+[data-result="NORMAL"] [data-page="COMPARE"] [data-element-value] {
+	opacity: 0;
+}
+body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
+	translate: 0 1rem;
+	opacity: 0.5;
 }
 
 /* || PERIODIC TABLE */
@@ -222,55 +270,45 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	translate: 0 -1rem;
 }
 
-/* .table .solid:hover{
-	color: #b5b5b5;
-}
-.table .liquid:hover{
-	color: #99F;
-}
-.table .gas:hover{
-	color: #F44;
-} */
-.table .unknown{
+.element.unknown{
 	background-color: #777;
 }
-.table .alkali{
+.element.alkali{
 	background-color:			#6c3b01;
 }
-.table .alkaline{
+.element.alkaline{
 	background-color:			#846011;
 }
-.table .lanthanoid{
+.element.lanthanoid{
 	background-color:		#402c17;
 }
-.table .actinoid{
+.element.actinoid{
 	background-color:			#732e4c;
 }
-.table .transition{
+.element.transition{
 	background-color:		#711019;
 }
-.table .poor{
+.element.poor{
 	background-color:				#003666;
 }
-.table .metalloid{
+.element.metalloid{
 	background-color:		#015146;
 }
-.table .nonmetal{
+.element.nonmetal{
 	background-color:			#3e6418;
 }
-.table .noble{
+.element.noble{
 	background-color:			#3a2151;
 }
-.table .nocategory{
+.element.nocategory{
 	background-color:		#222;
 }
 
+.table .element {
+	box-shadow: 2px 2px 0 1px black;
+}
 :where([data-result="CORRECT"], [data-result="INCORRECT"]) .table .element {
 	box-shadow: none;
-}
-.table .element
-{
-	box-shadow: 2px 2px 0 1px black;
 }
 
 /* || UTILS */

@@ -22,8 +22,8 @@
 			<section data-page="VALUE">
 				<div class="container around">
 					<div class="question card">
-						What is the <span data-field="">FIELD</span> of
-						<span data-element="">ELEMENT</span>?
+						What is the <span data-field>FIELD</span> of
+						<span data-element>ELEMENT</span>?
 					</div>
 					<div class="correction card">
 						<span class="text">Correct Answer</span>
@@ -40,7 +40,7 @@
 			<section data-page="OWNER">
 				<div class="container around">
 					<div class="question card">
-						Which element has a<span class="vowel-is-next hide">n</span><br><span data-field="">ATOMIC NUMBER</span> of <span data-value="">4</span>?
+						Which element has a<span class="vowel-is-next hide">n</span><br><span data-field>ATOMIC NUMBER</span> of <span data-value>4</span>?
 					</div>
 				</div>
 				<div class="table">
@@ -170,7 +170,7 @@
 			<section data-page="BOOLEAN">
 				<div class="container around">
 					<div class="question card">
-						Is <span data-element="">ELEMENT</span> a<span class="vowel-is-next hide">n</span> <span data-field="">FIELD</span> element?
+						Is <span data-element>ELEMENT</span> a<span class="vowel-is-next hide">n</span> <span data-field>FIELD</span> element?
 					</div>
 					<div class="correction card">
 						<span class="text">Correct Answer</span>
@@ -184,10 +184,10 @@
 					<button class="card" data-false>NO</button>
 				</div>
 			</section>
-			<section data-page="COMPARE">
+			<section data-page="COMPARE" data-active>
 				<div class="container around">
 					<div class="question card" data-comparison="LOWER">
-						Which element has a <span class="lower">lower</span><span class="higher">higher</span> <span data-field="">FIELD</span>?
+						Which element has a <span class="lower">lower</span><span class="higher">higher</span> <span data-field>FIELD</span>?
 					</div>
 					<div class="correction card">
 						<span class="text">Correct Answer</span>
@@ -195,10 +195,16 @@
 						<span data-answer>ANSWER</span>
 					</div>
 				</div>
-				<div class="container horizontal around input">
+				<div class="input">
 					<!-- data-incorrect , data-correct -->
-					<button class="card" data-value="A">A<span class="card" data-field-value>A</span></button>
-					<button class="card" data-value="B">B<span class="card" data-field-value>B</span></button>
+					<button class="element" data-value="A">
+						<span data-symbol>A</span>
+						<span data-element-value>A</span>
+					</button>
+					<button class="element" data-value="B" data-incorrect>
+						<span data-symbol>B</span>
+						<span data-element-value>B</span>
+					</button>
 				</div>
 			</section>
 		</div>
