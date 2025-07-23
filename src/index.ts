@@ -3,10 +3,23 @@ export {};
 const dataURI = "data/Elements.json";
 const table = await fetch(dataURI).then((data) => data.json());
 
-type PeriodicElement = Record<string, string | number>;
+type PeriodicElement = Record<string, string | number | boolean>;
 const fields = table.Fields as string[];
 const allActions = table.Actions as Record<string, string[]>;
 const elements = table.Elements as PeriodicElement[];
+
+const chemTypeToCSS: Record<string, string> = {
+	"Non-Metal": "nonmetal",
+	"Noble Gas": "noble",
+	"Alkali Metal": "alkali",
+	"Alkaline Earth Metal": "alkaline",
+	"Metalloid": "metalloid",
+	"Halogen": "nonmetal",
+	"Post-Transition Metal": "poor",
+	"Transition Metal": "transition",
+	"Lanthanide": "lanthanoid",
+	"Actinide": "actinoid",
+}
 
 function randIntInRange(max: number): number {
 	return Math.floor(Math.random() * max);
@@ -16,11 +29,14 @@ function getRandomElement(): PeriodicElement {
 	return elements[randIntInRange(elements.length)];
 }
 
-function getRandomElements(n: number): PeriodicElement[] {
+function getRandomElements(n: number, diffField?: string): PeriodicElement[] {
 	const elems: PeriodicElement[] = [];
 	while (elems.length < n) {
 		const candidate = getRandomElement();
-		if (!elems.includes(candidate)) elems.push(candidate);
+		if (elems.includes(candidate)) continue;
+		if (diffField !== undefined &&
+				elems.map(e=>e[diffField]).includes(candidate[diffField])) continue;
+		elems.push(candidate);
 	}
 	return elems;
 }
@@ -50,8 +66,8 @@ function splitCapitalCase(str: string): string {
 
 const valuePage = document.querySelector("[data-page=\"VALUE\"]") as HTMLElement;
 const ownerPage = document.querySelector("[data-page=\"OWNER\"]") as HTMLElement;
-const comparePage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLElement;
-const booleanPage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLElement;
+const booleanPage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLElement;
+const comparePage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLElement;
 const timeoutDelay = 610;
 
 function hideAllPages(cb: () => void) {
@@ -99,6 +115,7 @@ function revealPage(page: HTMLElement, cb: () => void) {
 }
 
 function handleValueQuestion(field: string) {
+	document.body.setAttribute("data-result", "NORMAL")
 	hideAllPages(() => {
 		const fieldEl = valuePage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
@@ -107,18 +124,27 @@ function handleValueQuestion(field: string) {
 		const element = getRandomElement();
 		elementEl.textContent = String(element["Element"]);
 
+		const answerEl = valuePage.querySelector("[data-answer]") as HTMLElement;
+		const answer = element[field];
+		answerEl.textContent = String(answer);
+
+		const inputEl = valuePage.querySelector("[data-input]") as HTMLElement;
+
 		revealPage(valuePage, () => {
 			
 		})
 	})
 }
+
 function handleOwnerQuestion(field: string) {
+	document.body.setAttribute("data-result", "NORMAL")
 	hideAllPages(() => {
 		const fieldEl = ownerPage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
 
 		const valueEl = ownerPage.querySelector("[data-value]") as HTMLElement;
 		const element = getRandomElement();
+		const elementName = (element["Element"] as string).toUpperCase();
 		const value = element[field];
 		valueEl.textContent = String(value);
 
@@ -126,20 +152,89 @@ function handleOwnerQuestion(field: string) {
 		if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
 		else vowelIsNext.classList.add("hide")
 
+		const prevAnswerEl = ownerPage.querySelector("[data-correct]") as HTMLElement | null;
+		if(prevAnswerEl) prevAnswerEl.removeAttribute("data-correct");
+
+		const currAnswerEl = ownerPage.querySelector(`[data-value="${elementName}"]`) as HTMLElement;
+		if(!currAnswerEl) console.error(`No element with name "${elementName}" exists!`)
+		else currAnswerEl.setAttribute("data-correct", "")
+
 		revealPage(ownerPage, () => {
 			
 		})
 	})
 }
+
 function handleCompareQuestion(field: string) {
+	document.body.setAttribute("data-result", "NORMAL")
 	hideAllPages(() => {
+		const questionEl = comparePage.querySelector(".question") as HTMLElement;
+		const goForLower = Math.random() < .5;
+		if(goForLower) questionEl.setAttribute("data-comparison", "LOWER")
+		else questionEl.setAttribute("data-comparison", "HIGHER")
+
+		const fieldEl = comparePage.querySelector("[data-field]") as HTMLElement;
+		fieldEl.textContent = splitCapitalCase(field);
+
+		const [elementLeft, elementRight] = getRandomElements(2, field);
+		const answerEl = comparePage.querySelector("[data-answer]") as HTMLElement;
+		const lower = elementLeft[field] < elementRight[field] ? elementLeft : elementRight;
+		const higher = elementLeft[field] > elementRight[field] ? elementLeft : elementRight;
+		answerEl.textContent = String((goForLower ? lower : higher)["Element"]);
+
+		const elementLeftEl = comparePage.querySelector(".input .element[data-value=\"A\"]") as HTMLElement;
+		const elementRightEl = comparePage.querySelector(".input .element[data-value=\"B\"]") as HTMLElement;		
+		const elementLeftCategory = chemTypeToCSS[elementLeft["ChemicalGroup"] as string];
+		const elementRightCategory = chemTypeToCSS[elementRight["ChemicalGroup"] as string];
+		elementLeftEl.className = `element ${elementLeftCategory}`;
+		elementRightEl.className = `element ${elementRightCategory}`;
+		elementLeftEl.querySelector("[data-symbol]")!.textContent = String(elementLeft["Symbol"]);
+		elementRightEl.querySelector("[data-symbol]")!.textContent = String(elementRight["Symbol"]);
+		elementLeftEl.querySelector("[data-element-value]")!.textContent = String(elementLeft[field]);
+		elementRightEl.querySelector("[data-element-value]")!.textContent = String(elementRight[field]);
+
+		elementLeftEl.removeAttribute("data-incorrect")
+		elementRightEl.removeAttribute("data-incorrect")
+		if(goForLower) {
+			if(lower === elementLeft) elementRightEl.setAttribute("data-incorrect", "");
+			else elementLeftEl.setAttribute("data-incorrect", "")
+		}
+		else {
+			if(higher === elementLeft) elementRightEl.setAttribute("data-incorrect", "");
+			else elementLeftEl.setAttribute("data-incorrect", "")
+		}
+
 		revealPage(comparePage, () => {
 			
 		})
 	})
 }
+
 function handleBooleanQuestion(field: string) {
+	document.body.setAttribute("data-result", "NORMAL")
 	hideAllPages(() => {
+		const fieldEl = booleanPage.querySelector("[data-field]") as HTMLElement;
+		fieldEl.textContent = splitCapitalCase(field);
+
+		const elementEl = booleanPage.querySelector("[data-element]") as HTMLElement;
+		const element = getRandomElement();
+		elementEl.textContent = String(element["Element"]);
+		
+		const vowelIsNext = booleanPage.querySelector(".vowel-is-next") as HTMLElement;
+		if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
+		else vowelIsNext.classList.add("hide")
+		
+		const value = element[field] as boolean;
+		const trueEl = booleanPage.querySelector("[data-value=\"TRUE\"]") as HTMLButtonElement;
+		const falseEl = booleanPage.querySelector("[data-value=\"FALSE\"]") as HTMLButtonElement;
+		if(value) {
+			trueEl.removeAttribute("data-incorrect");
+			falseEl.setAttribute("data-incorrect", "");
+		} else {
+			falseEl.removeAttribute("data-incorrect");
+			trueEl.setAttribute("data-incorrect", "");
+		}
+
 		revealPage(booleanPage, () => {
 			
 		})
@@ -150,7 +245,7 @@ function nextQuestion() {
 	while(true) {
 		const field = getRandomField();
 		const action = getRandomAction(field);
-
+		
 		switch(action) {
 			case "VALUE":		continue; handleValueQuestion(field); break;
 			case "OWNER":		handleOwnerQuestion(field); break;

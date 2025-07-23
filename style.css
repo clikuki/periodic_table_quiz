@@ -243,9 +243,6 @@ body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 	translate: 0 -1rem;
 }
 
-.element.unknown{
-	background-color: #777;
-}
 .element.alkali{
 	background-color:			#6c3b01;
 }
@@ -272,9 +269,6 @@ body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 }
 .element.noble{
 	background-color:			#3a2151;
-}
-.element.nocategory{
-	background-color:		#222;
 }
 
 .table .element {
