@@ -71,12 +71,10 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 
 .page-containers > section {
 	grid-area: O;
-	max-width: 80vw;
 	opacity: 0;
 	font-size: 2rem;
 	transition: opacity 600ms;
 	pointer-events: none;
-	
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -84,6 +82,7 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	gap: 1ch;
 	height: 100%;
 	padding: 1rem;
+	overflow: hidden; /* May be unsafe*/
 }
 
 .page-containers > [data-active] {
@@ -99,16 +98,16 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 }
 
 /* || MIX OF VARIOUS PAGES */
-:where([data-page="VALUE"], [data-page="COMPARE"]) .correction {
+.correction {
 	padding: .8rem 1rem;
 	width: 20ch;
 	transition: opacity 700ms;
 }
-:where([data-page="VALUE"], [data-page="COMPARE"]) .line {
+.correction .line {
 	border-bottom: 2px solid black;
 	border-radius: 0 0 2px 2px;
 }
-[data-result="NORMAL"] :where([data-page="VALUE"], [data-page="COMPARE"]) .correction {
+[data-result="NORMAL"] .correction {
 	opacity: 0;
 	pointer-events: none;
 	transition: none;
@@ -184,7 +183,6 @@ body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
 
 /* || OWNER PAGE / PERIODIC TABLE */
 .table {
-	flex: 1;
 	display: grid;
 	grid-template-rows: repeat(10, 2.2rem);
 	grid-template-columns: repeat(18, 2.2rem);

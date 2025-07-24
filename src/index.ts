@@ -173,6 +173,9 @@ function handleOwnerQuestion(field: string) {
 		const elementName = (element["Element"] as string).toUpperCase();
 		const value = element[field];
 		valueEl.textContent = String(value);
+		
+		const answerEl = ownerPage.querySelector("[data-answer]") as HTMLElement;
+		answerEl.textContent = elementName;
 
 		const vowelIsNext = ownerPage.querySelector(".vowel-is-next") as HTMLElement;
 		if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
@@ -293,12 +296,11 @@ async function nextQuestion() {
 		const action = getRandomAction(field);
 		
 		let isCorrect: boolean | null = null; // can be null for debugging purposes
-		switch(action) {//continue; 
+		switch(action) {
 			case "VALUE":		isCorrect = await handleValueQuestion(field); break;
 			case "OWNER":		isCorrect = await handleOwnerQuestion(field); break;
 			case "COMPARE": isCorrect = await handleCompareQuestion(field); break;
 			case "BOOLEAN": isCorrect = await handleBooleanQuestion(field); break;
-			default: throw Error(`invalid "${field}" action: ${action}`);
 		}
 
 		if(isCorrect === null) continue;
