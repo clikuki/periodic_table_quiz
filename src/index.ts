@@ -180,7 +180,8 @@ function handleValueQuestion(field: string) {
 		elementEl.textContent = String(element["Element"]);
 
 		const answerEl = valuePage.querySelector("[data-answer]") as HTMLElement;
-		answerEl.textContent = String(answer);
+		const unit = (dataTypes[field] as NumberType).unit ?? "";
+		answerEl.textContent = `${answer} ${unit}`.trim();
 
 		const inputEl = valuePage.querySelector("[data-input]") as HTMLInputElement;
 		inputEl.value = "";
@@ -260,17 +261,23 @@ function handleCompareQuestion(field: string) {
 
 		const answerEl = comparePage.querySelector("[data-answer]") as HTMLElement;
 		const elements = getRandomElements(2, field);
+
 		const sign = goForLower ? -1 : 1;
 		const correctElement = elements.reduce((outlier, element)=> {
-			populateElementData(elementLeftEl, element, field);
 			const outValue = outlier[field] as number;
 			const curValue = element[field] as number;
 			return sign*curValue > sign*outValue ? element : outlier;
 		});
 		answerEl.textContent = String(correctElement["Element"]);
 
-		const incorrectElementEl = Math.random() < .5 ? elementLeftEl : elementRightEl;
-		incorrectElementEl.removeAttribute("data-incorrect");
+		const elementEls = [elementLeftEl, elementRightEl];
+		if(Math.random() < .5) [elementEls[0], elementEls[1]] = [elementEls[1], elementEls[0]];
+		for(let i = 0; i < 2; ++i) {
+			populateElementData(elementEls[i], elements[i], field);
+			if(correctElement === elements[i]) {
+				elementEls[i].removeAttribute("data-incorrect");
+			}
+		}
 
 		function clickCB(e: MouseEvent) {
 			const target = e.target as HTMLElement;
