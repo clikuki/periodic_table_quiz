@@ -1,11 +1,29 @@
 export {};
 
+type PeriodicElement = Record<string, string | number | boolean>;
+type Actions = "VALUE" | "OWNER" | "COMPARE" | "BOOLEAN" | "OUTLIER" | "CATEGORY";
+interface BaseDataType {
+	isUnique: boolean;
+	isComparable: boolean;
+}
+interface NumberType extends BaseDataType {
+	type: "NUMBER";
+	unit?: string;
+}
+interface BooleanType extends BaseDataType {
+	type: "BOOLEAN";
+}
+interface EnumType extends BaseDataType {
+	type: "ENUM";
+	values: (number|string)[];
+}
+type DataType = NumberType | BooleanType | EnumType;
+
 const dataURI = "data/Elements.json";
 const table = await fetch(dataURI).then((data) => data.json());
 
-type PeriodicElement = Record<string, string | number | boolean>;
 const fields = table.Fields as string[];
-const allActions = table.Actions as Record<string, string[]>;
+const dataTypes = table.DataTypes as Record<string, DataType>;
 const elements = table.Elements as PeriodicElement[];
 
 const chemTypeToCSS: Record<string, string> = {
@@ -45,10 +63,27 @@ function getRandomField(): string {
 	return fields[randIntInRange(fields.length)];
 }
 
-type Actions = "VALUE" | "OWNER" | "COMPARE" | "BOOLEAN";
 function getRandomAction(field: string): Actions | null {
-	const actions = allActions[field];
-	return actions?.[randIntInRange(actions.length)] as Actions ?? null;
+	const dataType = dataTypes[field];
+	const actions: Actions[] = ["OUTLIER"];
+
+	if(dataType.isUnique) actions.push("OWNER");
+	if(dataType.isComparable && dataType.type !== 'BOOLEAN') actions.push("COMPARE");
+
+	switch(dataType.type) {
+		case "NUMBER":
+			actions.push("VALUE")
+			break;
+		case "BOOLEAN":
+			actions.push("BOOLEAN")
+			break;
+		case "ENUM":
+			actions.push("CATEGORY")
+			break;
+	}
+
+	if(!actions.length) return null;
+	return actions[Math.floor(Math.random() * actions.length)];
 }
 
 function splitCapitalCase(str: string): string {
@@ -116,28 +151,8 @@ function revealPage(page: HTMLElement, revertBackground = true) {
 	page.setAttribute("data-active", "");
 }
 
-function cleanValue(value: string | number) {
-	// In case string is in form `<number> <unit>`
-	if(typeof value === 'string') {
-		const parts = value.split(/ /g);
-		if(!Number.isNaN(+parts[0])) {
-			value = +parts[0]
-		}
-	}
-
-	return value;
-}
-
-function isApproxEqual(input: string, value: string | number): boolean {
-	value = cleanValue(value);
-
-	if(typeof value === 'string') {
-		// IDEA: Maybe add levenshtein distance checker to allow almost correct answers (typos)
-		return input.toLowerCase() === value.toLowerCase();
-	}
-	else {
-		return Math.abs(value - +input) < .5;
-	}
+function isApproxEqual(input: string, value: number): boolean {
+	return Math.abs(value - +input) < .5;
 }
 
 function beforeNextPage(correct: boolean) {
@@ -148,12 +163,15 @@ function beforeNextPage(correct: boolean) {
 }
 
 function handleValueQuestion(field: string) {
-	return new Promise<boolean>(async (resolve) => {
+	return new Promise<boolean>(async (resolve, reject) => {
 		await hideAllPages();
 		
 		const element = getRandomElement();
 		const answer = element[field];
-		if(typeof answer === 'boolean') throw Error(`"${field}" value of element "${element["Element"]}" is boolean`);
+		if(typeof answer !== 'number') {
+			reject(Error(`Invalid ${element}[${field}] datatype`));
+			return
+		}
 
 		const fieldEl = valuePage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
@@ -169,7 +187,7 @@ function handleValueQuestion(field: string) {
 		inputEl.addEventListener("keydown", function inputCB(e: KeyboardEvent) {
 			if(e.key !== "Enter") return;
 			inputEl.removeEventListener("keydown", inputCB);
-			resolve(isApproxEqual(inputEl.value, answer as string | number));
+			resolve(isApproxEqual(inputEl.value, answer));
 		})
 		
 		revealPage(valuePage)
@@ -215,6 +233,12 @@ function handleOwnerQuestion(field: string) {
 	})
 }
 
+function populateElementData(elementEl: HTMLElement, element: PeriodicElement, field: string) {
+	const elementCategory = chemTypeToCSS[element["ChemicalGroup"] as string];
+	elementEl.className = `element ${elementCategory}`;
+	elementEl.querySelector("[data-symbol]")!.textContent = String(element["Symbol"]);
+	elementEl.querySelector("[data-element-value]")!.textContent = String(element[field]);
+}
 function handleCompareQuestion(field: string) {
 	// Normalize page before use
 	const inputEl = comparePage.querySelector(".input") as HTMLButtonElement; 
@@ -234,26 +258,19 @@ function handleCompareQuestion(field: string) {
 		const fieldEl = comparePage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
 
-		const [elementLeft, elementRight] = getRandomElements(2, field);
 		const answerEl = comparePage.querySelector("[data-answer]") as HTMLElement;
-		const leftValue = cleanValue(elementLeft[field] as string | number);
-		const rightValue = cleanValue(elementRight[field] as string | number);
-		const lower = leftValue < rightValue ? elementLeft : elementRight;
-		const higher = leftValue > rightValue ? elementLeft : elementRight;
-		answerEl.textContent = String((goForLower ? lower : higher)["Element"]);
+		const elements = getRandomElements(2, field);
+		const sign = goForLower ? -1 : 1;
+		const correctElement = elements.reduce((outlier, element)=> {
+			populateElementData(elementLeftEl, element, field);
+			const outValue = outlier[field] as number;
+			const curValue = element[field] as number;
+			return sign*curValue > sign*outValue ? element : outlier;
+		});
+		answerEl.textContent = String(correctElement["Element"]);
 
-		const elementLeftCategory = chemTypeToCSS[elementLeft["ChemicalGroup"] as string];
-		const elementRightCategory = chemTypeToCSS[elementRight["ChemicalGroup"] as string];
-		elementLeftEl.className = `element ${elementLeftCategory}`;
-		elementRightEl.className = `element ${elementRightCategory}`;
-		elementLeftEl.querySelector("[data-symbol]")!.textContent = String(elementLeft["Symbol"]);
-		elementRightEl.querySelector("[data-symbol]")!.textContent = String(elementRight["Symbol"]);
-		elementLeftEl.querySelector("[data-element-value]")!.textContent = String(elementLeft[field]);
-		elementRightEl.querySelector("[data-element-value]")!.textContent = String(elementRight[field]);
-
-		const leftIsCorrect = goForLower && lower === elementLeft || !goForLower && higher === elementLeft;
-		if(leftIsCorrect) elementLeftEl.removeAttribute("data-incorrect");
-		else elementRightEl.removeAttribute("data-incorrect");
+		const incorrectElementEl = Math.random() < .5 ? elementLeftEl : elementRightEl;
+		incorrectElementEl.removeAttribute("data-incorrect");
 
 		function clickCB(e: MouseEvent) {
 			const target = e.target as HTMLElement;
@@ -327,10 +344,12 @@ async function nextQuestion() {
 		
 		let isCorrect: boolean | null = null; // can be null for debugging purposes
 		switch(action) {
-			case "VALUE":		isCorrect = await handleValueQuestion(field); break;
-			case "OWNER":		isCorrect = await handleOwnerQuestion(field); break;
-			case "COMPARE": isCorrect = await handleCompareQuestion(field); break;
-			case "BOOLEAN": isCorrect = await handleBooleanQuestion(field); break;
+			case "VALUE":			isCorrect = await handleValueQuestion(field); break;
+			case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
+			case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
+			case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
+			case "CATEGORY":	break; // TODO: implement CATEGORY questions
+			case "OUTLIER":		break; // TODO: implement OUTLIER questions
 		}
 
 		if(isCorrect === null) continue;

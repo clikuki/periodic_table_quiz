@@ -135,6 +135,10 @@ section[data-page="MENU"]:not([data-has-played]) .score {
 }
 section[data-page="MENU"] .start {
 	background-color: hsl(50, 100%, 50%);
+	transition: scale 700ms; 
+}
+section[data-page="MENU"] .start:hover {
+	scale: 1.1;
 }
 section[data-page="MENU"][data-has-played] .first-time {
 	display: none;
