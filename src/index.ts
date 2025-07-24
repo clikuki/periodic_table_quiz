@@ -70,35 +70,39 @@ const booleanPage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLEle
 const comparePage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLElement;
 const timeoutDelay = 800;
 
-function hideAllPages(cb: () => void) {
-	for(const page of [valuePage, ownerPage, comparePage, booleanPage]) {
-		if(!page.hasAttribute("data-active")) continue;
+function hideAllPages() {
+	return new Promise<void>((resolve) => {
+		for(const page of [valuePage, ownerPage, comparePage, booleanPage]) {
+			if(!page.hasAttribute("data-active")) continue;
 
-		// If transtion event fails to fire for any reason, timer will be used as fallback
-		const timer = setTimeout(() => {
-			page.removeEventListener("transitionend", eventCB);
-			cb();
-		}, timeoutDelay)
-		const eventCB = (e: TransitionEvent) => {
-			if(e.target !== page) return;
-			clearTimeout(timer);
-			cb();
+			// If transtion event fails to fire for any reason, timer will be used as fallback
+			const timer = setTimeout(() => {
+				page.removeEventListener("transitionend", eventCB);
+				resolve();
+			}, timeoutDelay)
+			const eventCB = (e: TransitionEvent) => {
+				if(e.target !== page) return;
+				clearTimeout(timer);
+				resolve();
+			}
+
+			page.addEventListener("transitionend", eventCB, { once: true });
+			page.removeAttribute("data-active");
+			return
 		}
 
-		page.addEventListener("transitionend", eventCB, { once: true });
-		page.removeAttribute("data-active");
-		return
-	}
-
-	// None are open, call by default
-	cb();
+		// No pages are open
+		resolve();
+	})
 } 
 
 function revealPage(page: HTMLElement) {
-	// Page is already open, call by default
+	document.body.setAttribute("data-result", "NORMAL");
+
+	// Page is already open
 	if(page.hasAttribute("data-active")) return;
 
-	// If transtion event fails to fire for any reason, timer will be used as fallback
+	// If transition event fails to fire for any reason, timer will be used as fallback
 	const timer = setTimeout(() => {
 		page.removeEventListener("transitionend", eventCB);
 	}, timeoutDelay)
@@ -121,23 +125,16 @@ function isApproxEqual(input: string, value: string | number): boolean {
 	}
 }
 
-function performAnswerChanges(correct: boolean, cb?: () => void) {
-	if(correct) {
-		document.body.setAttribute("data-result", "CORRECT")
-	}
-	else {
-		document.body.setAttribute("data-result", "INCORRECT")
-	}
-
-	requestAnimationFrame(() => document.body.addEventListener("click", () => {
-		cb?.();
-		nextQuestion();
-	}, { once: true }))
+function beforeNextPage(correct: boolean) {
+	return new Promise<MouseEvent>((resolve) => {
+		document.body.setAttribute("data-result", correct ? "CORRECT" : "INCORRECT")
+		requestAnimationFrame(() => document.body.addEventListener("click", resolve, { once: true }))
+	})
 }
 
 function handleValueQuestion(field: string) {
-	hideAllPages(() => {
-		document.body.setAttribute("data-result", "NORMAL");
+	return new Promise<boolean>(async (resolve) => {
+		await hideAllPages();
 		
 		const element = getRandomElement();
 		const answer = element[field];
@@ -157,7 +154,7 @@ function handleValueQuestion(field: string) {
 		inputEl.addEventListener("keydown", function inputCB(e: KeyboardEvent) {
 			if(e.key !== "Enter") return;
 			inputEl.removeEventListener("keydown", inputCB);
-			performAnswerChanges(isApproxEqual(inputEl.value, answer as string | number));
+			resolve(isApproxEqual(inputEl.value, answer as string | number));
 		})
 		
 		revealPage(valuePage)
@@ -165,8 +162,8 @@ function handleValueQuestion(field: string) {
 }
 
 function handleOwnerQuestion(field: string) {
-	hideAllPages(() => {
-		document.body.setAttribute("data-result", "NORMAL");
+	return new Promise<boolean>(async (resolve) => {
+		await hideAllPages();
 		
 		const fieldEl = ownerPage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
@@ -192,7 +189,7 @@ function handleOwnerQuestion(field: string) {
 		function tableClickCB(e: MouseEvent) {
 			if(e.target === tableEl) return;
 			tableEl.addEventListener("click", tableClickCB);
-			performAnswerChanges(e.target === currAnswerEl);
+			resolve(e.target === currAnswerEl);
 		}
 		tableEl.addEventListener("click", tableClickCB);
 
@@ -201,8 +198,15 @@ function handleOwnerQuestion(field: string) {
 }
 
 function handleCompareQuestion(field: string) {
-	hideAllPages(() => {
-		document.body.setAttribute("data-result", "NORMAL");
+	// Normalize page before use
+	const inputEl = comparePage.querySelector(".input") as HTMLButtonElement; 
+	const elementLeftEl = inputEl.querySelector(".input .element[data-left]") as HTMLElement;
+	const elementRightEl = inputEl.querySelector(".input .element[data-right]") as HTMLElement;		
+	elementLeftEl.setAttribute("data-incorrect", "")
+	elementRightEl.setAttribute("data-incorrect", "")
+
+	return new Promise<boolean>(async (resolve) => {
+		await hideAllPages();
 		
 		const questionEl = comparePage.querySelector(".question") as HTMLElement;
 		const goForLower = Math.random() < .5;
@@ -218,9 +222,6 @@ function handleCompareQuestion(field: string) {
 		const higher = elementLeft[field] > elementRight[field] ? elementLeft : elementRight;
 		answerEl.textContent = String((goForLower ? lower : higher)["Element"]);
 
-		const inputEl = comparePage.querySelector(".input") as HTMLButtonElement; 
-		const elementLeftEl = inputEl.querySelector(".input .element[data-left]") as HTMLElement;
-		const elementRightEl = inputEl.querySelector(".input .element[data-right]") as HTMLElement;		
 		const elementLeftCategory = chemTypeToCSS[elementLeft["ChemicalGroup"] as string];
 		const elementRightCategory = chemTypeToCSS[elementRight["ChemicalGroup"] as string];
 		elementLeftEl.className = `element ${elementLeftCategory}`;
@@ -238,10 +239,7 @@ function handleCompareQuestion(field: string) {
 			const target = e.target as HTMLElement;
 			if(target === inputEl) return;
 			inputEl.removeEventListener("click", clickCB);
-			performAnswerChanges(!target.hasAttribute("data-incorrect"), () => {
-				elementLeftEl.setAttribute("data-incorrect", "")
-				elementRightEl.setAttribute("data-incorrect", "")
-			});
+			resolve(!target.hasAttribute("data-incorrect"));
 		}
 		inputEl.addEventListener("click", clickCB)
 
@@ -250,8 +248,8 @@ function handleCompareQuestion(field: string) {
 }
 
 function handleBooleanQuestion(field: string) {
-	hideAllPages(() => {
-		document.body.setAttribute("data-result", "NORMAL");
+	return new Promise<boolean>(async (resolve) => {
+		await hideAllPages();
 		
 		const fieldEl = booleanPage.querySelector("[data-field]") as HTMLElement;
 		fieldEl.textContent = splitCapitalCase(field);
@@ -280,7 +278,7 @@ function handleBooleanQuestion(field: string) {
 			const target = e.target;
 			if(target === inputEl) return;
 			inputEl.removeEventListener("click", clickCB);
-			performAnswerChanges(value && target === trueEl ||
+			resolve(value && target === trueEl ||
 													!value && target === falseEl);
 		}
 		inputEl.addEventListener("click", clickCB)
@@ -289,20 +287,23 @@ function handleBooleanQuestion(field: string) {
 	})
 }
 
-function nextQuestion() {
+async function nextQuestion() {
 	while(true) {
 		const field = getRandomField();
 		const action = getRandomAction(field);
 		
+		let isCorrect: boolean | null = null; // can be null for debugging purposes
 		switch(action) {//continue; 
-			case "VALUE":		handleValueQuestion(field); break;
-			case "OWNER":		handleOwnerQuestion(field); break;
-			case "COMPARE": handleCompareQuestion(field); break;
-			case "BOOLEAN": handleBooleanQuestion(field); break;
+			case "VALUE":		isCorrect = await handleValueQuestion(field); break;
+			case "OWNER":		isCorrect = await handleOwnerQuestion(field); break;
+			case "COMPARE": isCorrect = await handleCompareQuestion(field); break;
+			case "BOOLEAN": isCorrect = await handleBooleanQuestion(field); break;
 			default: throw Error(`invalid "${field}" action: ${action}`);
 		}
 
-		return;
+		if(isCorrect === null) continue;
+
+		await beforeNextPage(isCorrect);
 	}
 }
 
