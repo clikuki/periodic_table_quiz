@@ -68,11 +68,12 @@ const valuePage = document.querySelector("[data-page=\"VALUE\"]") as HTMLElement
 const ownerPage = document.querySelector("[data-page=\"OWNER\"]") as HTMLElement;
 const booleanPage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLElement;
 const comparePage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLElement;
+const menuPage = document.querySelector("[data-page=\"MENU\"]") as HTMLElement;
 const timeoutDelay = 800;
 
 function hideAllPages() {
 	return new Promise<void>((resolve) => {
-		for(const page of [valuePage, ownerPage, comparePage, booleanPage]) {
+		for(const page of [valuePage, ownerPage, comparePage, booleanPage, menuPage]) {
 			if(!page.hasAttribute("data-active")) continue;
 
 			// If transtion event fails to fire for any reason, timer will be used as fallback
@@ -96,8 +97,8 @@ function hideAllPages() {
 	})
 } 
 
-function revealPage(page: HTMLElement) {
-	document.body.setAttribute("data-result", "NORMAL");
+function revealPage(page: HTMLElement, revertBackground = true) {
+	if(revertBackground) document.body.setAttribute("data-result", "NORMAL");
 
 	// Page is already open
 	if(page.hasAttribute("data-active")) return;
@@ -290,7 +291,20 @@ function handleBooleanQuestion(field: string) {
 	})
 }
 
+async function handleMenuSwitch(score: number) {
+	await hideAllPages();
+	
+	menuPage.setAttribute('data-has-played', "");
+
+	const scoreEl = menuPage.querySelector("[data-score]") as HTMLElement;
+	scoreEl.textContent = String(score);
+	
+	revealPage(menuPage, false);
+}
+
 async function nextQuestion() {
+	let score = 0;
+
 	while(true) {
 		const field = getRandomField();
 		const action = getRandomAction(field);
@@ -304,9 +318,19 @@ async function nextQuestion() {
 		}
 
 		if(isCorrect === null) continue;
-
 		await beforeNextPage(isCorrect);
+
+		if(isCorrect) ++score;
+		else break;
 	}
+
+	handleMenuSwitch(score);
 }
 
-nextQuestion();
+function main() {
+	// Bind start btn early
+	const startBtn = menuPage.querySelector(".start") as HTMLButtonElement;
+	startBtn.addEventListener("click", nextQuestion);
+}
+
+main();
