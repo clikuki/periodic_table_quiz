@@ -292,6 +292,12 @@ function handleCompareQuestion(field: string) {
 }
 
 function handleBooleanQuestion(field: string) {
+	const inputEl = booleanPage.querySelector(".input") as HTMLButtonElement; 
+	const trueEl = inputEl.querySelector("[data-value=\"TRUE\"]") as HTMLButtonElement;
+	const falseEl = inputEl.querySelector("[data-value=\"FALSE\"]") as HTMLButtonElement;
+	trueEl.setAttribute("data-incorrect", "");
+	falseEl.setAttribute("data-incorrect", "");
+
 	return new Promise<boolean>(async (resolve) => {
 		await hideAllPages();
 		
@@ -307,23 +313,14 @@ function handleBooleanQuestion(field: string) {
 		else vowelIsNext.classList.add("hide")
 		
 		const value = element[field] as boolean;
-		const inputEl = booleanPage.querySelector(".input") as HTMLButtonElement; 
-		const trueEl = inputEl.querySelector("[data-value=\"TRUE\"]") as HTMLButtonElement;
-		const falseEl = inputEl.querySelector("[data-value=\"FALSE\"]") as HTMLButtonElement;
-		if(value) {
-			trueEl.removeAttribute("data-incorrect");
-			falseEl.setAttribute("data-incorrect", "");
-		} else {
-			falseEl.removeAttribute("data-incorrect");
-			trueEl.setAttribute("data-incorrect", "");
-		}
+		(value ? trueEl : falseEl).removeAttribute("data-incorrect");
 
 		function clickCB(e: MouseEvent) {
 			const target = e.target;
 			if(target === inputEl) return;
 			inputEl.removeEventListener("click", clickCB);
 			resolve(value && target === trueEl ||
-													!value && target === falseEl);
+						!value && target === falseEl);
 		}
 		inputEl.addEventListener("click", clickCB)
 
