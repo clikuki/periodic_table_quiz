@@ -116,9 +116,23 @@ function revealPage(page: HTMLElement, revertBackground = true) {
 	page.setAttribute("data-active", "");
 }
 
-function isApproxEqual(input: string, value: string | number): boolean {
+function cleanValue(value: string | number) {
+	// In case string is in form `<number> <unit>`
 	if(typeof value === 'string') {
-		// IDEA: Maybe add levenshetein distance checker to allow almost correct answers (typos)
+		const parts = value.split(/ /g);
+		if(!Number.isNaN(+parts[0])) {
+			value = +parts[0]
+		}
+	}
+
+	return value;
+}
+
+function isApproxEqual(input: string, value: string | number): boolean {
+	value = cleanValue(value);
+
+	if(typeof value === 'string') {
+		// IDEA: Maybe add levenshtein distance checker to allow almost correct answers (typos)
 		return input.toLowerCase() === value.toLowerCase();
 	}
 	else {
@@ -222,8 +236,10 @@ function handleCompareQuestion(field: string) {
 
 		const [elementLeft, elementRight] = getRandomElements(2, field);
 		const answerEl = comparePage.querySelector("[data-answer]") as HTMLElement;
-		const lower = elementLeft[field] < elementRight[field] ? elementLeft : elementRight;
-		const higher = elementLeft[field] > elementRight[field] ? elementLeft : elementRight;
+		const leftValue = cleanValue(elementLeft[field] as string | number);
+		const rightValue = cleanValue(elementRight[field] as string | number);
+		const lower = leftValue < rightValue ? elementLeft : elementRight;
+		const higher = leftValue > rightValue ? elementLeft : elementRight;
 		answerEl.textContent = String((goForLower ? lower : higher)["Element"]);
 
 		const elementLeftCategory = chemTypeToCSS[elementLeft["ChemicalGroup"] as string];

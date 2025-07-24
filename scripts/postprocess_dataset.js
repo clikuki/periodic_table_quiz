@@ -66,7 +66,7 @@ const fields = [
 	"StableIsotopes",
 	"SpecificHeat",
 	"NumberOfShells",
-	"NumberOfValence",
+	"NumberOfValenceElectrons",
 ];
 
 const fixedElements = elements.map((e) => {
@@ -84,27 +84,27 @@ const fixedElements = elements.map((e) => {
 		AtomicNumber: +e.AtomicNumber,
  		Element: e.Element,
  		Symbol: e.Symbol,
-		AtomicMass: +e.AtomicMass,
+		AtomicMass: `${+e.AtomicMass} u`,
 		NumberOfNeutrons: +e.NumberOfNeutrons,
 		NumberOfProtons: +e.NumberOfProtons,
 		NumberOfElectrons: +e.NumberOfElectrons,
 		Period: +e.Period,
 		Group: thisOr(e.Group, "f-group"),
-		Phase: e.Phase,
+		Phase: e.Phase.split(" ")[0],
 		Radioactive: toBool(e.Radioactive),
 		Natural: toBool(e.Natural),
 		ElementalCategory,
 		ChemicalGroup: e.Type,
 		AtomicRadius: +e.AtomicRadius,
 		Electronegativity: +e.Electronegativity,
-		IonizationEnergy: +e.ionizationEnergy,
+		IonizationEnergy: `${+e.ionizationEnergy} eV`,
 		Density: +e.Density,
 		MeltingPoint: `${+e.MeltingPoint} K`,
 		BoilingPoint: `${+e.BoilingPoint} K`,
 		StableIsotopes: +e.stableIsotopes,
 		SpecificHeat: `${+e.SpecificHeat} J/g°C`,
 		NumberOfShells: +e.NumberOfShells,
-		NumberOfValence: +e.NumberOfValence,
+		NumberOfValenceElectrons: +e.NumberOfValence,
 		// Discoverer: thisOr(e.Discoverer, "N/A"),
 		// Year: thisOr(e.Year, "N/A"),
 	};
@@ -123,7 +123,7 @@ const fixedElements = elements.map((e) => {
  */
 const actions = {
 	AtomicNumber: ["VALUE", "OWNER", "COMPARE"],
-	AtomicMass: ["VALUE", "COMPARE"],
+	AtomicMass: ["COMPARE"],
 	NumberOfNeutrons: ["VALUE", "COMPARE"],
 	NumberOfProtons: ["VALUE", "COMPARE"],
 	NumberOfElectrons: ["VALUE", "COMPARE"],
@@ -143,7 +143,7 @@ const actions = {
 	StableIsotopes: ["COMPARE"],
 	SpecificHeat: ["COMPARE"],
 	NumberOfShells: ["COMPARE"],
-	NumberOfValence: ["COMPARE"],
+	NumberOfValenceElectrons: ["COMPARE"],
 };
 
 const newData = {
