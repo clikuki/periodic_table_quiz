@@ -47,13 +47,17 @@ function getRandomElement(): PeriodicElement {
 	return elements[randIntInRange(elements.length)];
 }
 
-function getRandomElements(n: number, diffField?: string): PeriodicElement[] {
+function getRandomElements(n: number, field?: string): PeriodicElement[] {
 	const elems: PeriodicElement[] = [];
+	const values = new Set<string | number>()
+	const isBoolean = dataTypes[field ?? ""].type === "BOOLEAN";
 	while (elems.length < n) {
 		const candidate = getRandomElement();
 		if (elems.includes(candidate)) continue;
-		if (diffField !== undefined &&
-				elems.map(e=>e[diffField]).includes(candidate[diffField])) continue;
+		if (field !== undefined) {
+			if(candidate[field] === null) continue;
+			if(!isBoolean && values.has(candidate[field] as string | number)) continue;
+		}
 		elems.push(candidate);
 	}
 	return elems;
