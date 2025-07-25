@@ -216,7 +216,7 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	grid-column: 1;
 	grid-row: 1 / span 2;
 	font-weight: 500;
-	text-transform: unset;
+	text-transform: initial;
 	pointer-events: none;
 }
 
@@ -224,6 +224,7 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	grid-column: 1;
 	grid-row: 2;
 	font-size: 2rem;
+	pointer-events: none;
 	transition: opacity 1s;
 }
 
@@ -240,11 +241,16 @@ body:not([data-result="NORMAL"]) :where([data-page="COMPARE"], [data-page="OUTLI
 	opacity: 0.5;
 }
 
-/* || COMPARE PAGE */
-[data-page="COMPARE"] [data-comparison="LOWER"] .higher,
-[data-page="COMPARE"] [data-comparison="HIGHER"] .lower {
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) :where(.higher, .lower, .different) {
 	display: none;
 }
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="LOWER"] .lower,
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="HIGHER"] .higher,
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="DIFFERENT"] .different {
+	display: initial;
+}
+
+/* || COMPARE PAGE */
 [data-page="COMPARE"] .input {
 	width: 100%;
 	display: grid;
@@ -268,6 +274,7 @@ body:not([data-result="NORMAL"]) :where([data-page="COMPARE"], [data-page="OUTLI
 	width: 9rem;
 	height: 9rem;
 	font-size: 3rem;
+	background-color: black;
 }
 [data-page="OUTLIER"] [data-element-value] {
 	font-size: 2rem;
@@ -306,8 +313,8 @@ body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 	opacity: .5;
 	cursor: revert;
 	color: transparent;
-	filter: unset;
-	scale: unset;
+	filter: initial;
+	scale: initial;
 	z-index: initial;
 }
 .table [data-value="HELIUM"] {

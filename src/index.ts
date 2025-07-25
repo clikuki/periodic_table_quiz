@@ -24,7 +24,7 @@ const table = await fetch(dataURI).then((data) => data.json());
 
 const fields = table.Fields as string[];
 const dataTypes = table.DataTypes as Record<string, DataType>;
-const elements = table.Elements as PeriodicElement[];
+const tableElements = table.Elements as PeriodicElement[];
 
 const chemTypeToCSS: Record<string, string> = {
 	"Non-Metal": "nonmetal",
@@ -44,7 +44,7 @@ function randIntInRange(max: number): number {
 }
 
 function getRandomElement(): PeriodicElement {
-	return elements[randIntInRange(elements.length)];
+	return tableElements[randIntInRange(tableElements.length)];
 }
 
 function getRandomElements(n: number, field?: string): PeriodicElement[] {
@@ -108,6 +108,7 @@ const ownerPage = document.querySelector("[data-page=\"OWNER\"]") as HTMLElement
 const booleanPage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLElement;
 const comparePage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLElement;
 const categoryPage = document.querySelector("[data-page=\"CATEGORY\"]") as HTMLElement;
+const outlierPage = document.querySelector("[data-page=\"OUTLIER\"]") as HTMLElement;
 const menuPage = document.querySelector("[data-page=\"MENU\"]") as HTMLElement;
 const allPages = [valuePage, ownerPage, comparePage, booleanPage, categoryPage, menuPage]
 const timeoutDelay = 800;
@@ -291,9 +292,87 @@ function handleCompareQuestion(field: string) {
 			inputEl.removeEventListener("click", clickCB);
 			resolve(!target.hasAttribute("data-incorrect"));
 		}
-		inputEl.addEventListener("click", clickCB)
+		inputEl.addEventListener("click", clickCB);
 
 		revealPage(comparePage)
+	})
+}
+
+function handleOutlierQuestion(field: string) {
+	// Normalize page before use
+	const inputEl = outlierPage.querySelector(".input") as HTMLButtonElement; 
+	inputEl.replaceChildren();
+
+	return new Promise<boolean>(async (resolve) => {
+		await hideAllPages();
+		
+		const dataType = dataTypes[field];
+		const elementTemplate = outlierPage.querySelector("#element") as HTMLTemplateElement;
+		const questionEl = outlierPage.querySelector(".question") as HTMLElement;
+		const fieldEl = questionEl.querySelector("[data-field]") as HTMLElement;
+		const answerEl = outlierPage.querySelector("[data-answer]") as HTMLElement;
+		fieldEl.textContent = splitCapitalCase(field);
+		
+		const maxElements = 6;
+		const sign = Math.random() < .5 ? 1 : -1;
+		const elements: PeriodicElement[] = [];
+
+		const comparisonType =
+			dataType.type === "NUMBER" ?
+				(sign < 0 ? "HIGHER" : "LOWER") :
+				("DIFFERENT")
+		questionEl.setAttribute("data-comparison", comparisonType);
+
+		// 1. Find the "correct" element
+		while(true) {
+			elements[0] = getRandomElement();
+			if(elements[0][field] === null) continue;
+			break;
+		}
+		const answer = elements[0][field];
+		answerEl.textContent = String(elements[0]["Element"]);
+
+		// 2. Find the "wrong" elements
+		let iterCnt = 1000;
+		while(elements.length < maxElements && iterCnt++ > 0) {
+			const different = getRandomElement();
+			const val = different[field];
+			if(val === null || val === answer) continue;
+			
+			switch(dataType.type) {
+				case "BOOLEAN": break;
+				case "NUMBER":
+					if(sign*+val < sign*+answer) continue;
+					break;
+				case "ENUM":
+					if(elements.length > 2 && elements[1][field] !== val) continue;
+					break;
+			}
+
+			elements.push(different);
+		}
+
+		// 3. Build HTML
+		const elementEls = elements.map((e) => {
+			const fragment = elementTemplate.content.cloneNode(true) as DocumentFragment;
+			const btn = fragment.querySelector('.element') as HTMLButtonElement;
+
+			populateElementData(btn, e, field);
+			if(e[field] === answer) btn.removeAttribute("data-incorrect");
+
+			return fragment;
+		}).sort(() => Math.random() - .5);
+
+		function clickCB(e: MouseEvent) {
+			const target = e.target as HTMLElement;
+			if(target === inputEl) return;
+			inputEl.removeEventListener("click", clickCB);
+			resolve(!target.hasAttribute("data-incorrect"));
+		}
+		inputEl.addEventListener("click", clickCB);
+		inputEl.append(...elementEls);
+
+		revealPage(outlierPage)
 	})
 }
 
@@ -408,7 +487,7 @@ async function nextQuestion() {
 			case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
 			case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
 			case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
-			case "OUTLIER":		break; // TODO: implement OUTLIER questions
+			case "OUTLIER":		isCorrect = await handleOutlierQuestion(field); break;
 		}
 
 		if(isCorrect === null) continue;
