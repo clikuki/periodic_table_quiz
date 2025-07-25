@@ -227,7 +227,29 @@
 					<button class="card" data-confirm>CONFIRM</button>
 				</div>
 			</section>
-			<section data-page="MENU" data-active>
+			<section data-page="OUTLIER" data-active>
+				<div class="container around">
+					<div class="question card" data-comparison="LOWER">
+						Which among these elements is<br>
+						different in <span data-field>FIELD</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="input">
+					<!-- data-correct -->
+					<template>
+						<button class="element" data-incorrect>
+							<span data-symbol>A</span>
+							<span data-element-value>A</span>
+						</button>
+					</template>
+				</div>
+			</section>
+			<section data-page="MENU">
 				<!-- data-has-played -->
 				<div class="card header">
 					<span class="ignore" style="text-transform: uppercase; grid-row: 1 / 3; writing-mode: vertical-rl; rotate: 180deg;">The</span>
