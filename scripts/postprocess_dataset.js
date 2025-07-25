@@ -69,6 +69,19 @@ const fields = [
 	"NumberOfValenceElectrons",
 ];
 
+const fixedChemGroupMap = {
+	"Non-Metal": "Non-Metal",
+	"Noble Gas": "Noble Gas",
+	"Alkali Metal": "Alkali Metal",
+	"Alkaline Earth Metal": "Alkaline Metal",
+	"Metalloid": "Metalloid",
+	"Halogen": "Halogen",
+	"Post-Transition Metal": "Poor Metal",
+	"Transition Metal": "Transition Metal",
+	"Lanthanide": "Lanthanide",
+	"Actinide": "Actinide",
+}
+
 const fixedElements = elements.map((e) => {
 	// Combine metal fields
 	const isMetal = toBool(e.Metal);
@@ -94,7 +107,7 @@ const fixedElements = elements.map((e) => {
 		Radioactive: toBool(e.Radioactive),
 		Natural: toBool(e.Natural),
 		ElementalCategory,
-		ChemicalGroup: e.Type,
+		ChemicalGroup: fixedChemGroupMap[e.Type],
 		AtomicRadius: thisOr(e.AtomicRadius, null),
 		Electronegativity: thisOr(e.Electronegativity, null),
 		IonizationEnergy: thisOr(e.ionizationEnergy, null),
@@ -177,10 +190,10 @@ const dataTypes = {
 			"Non-Metal",
 			"Noble Gas",
 			"Alkali Metal",
-			"Alkaline Earth Metal",
+			"Alkaline Metal",
 			"Metalloid",
 			"Halogen",
-			"Post-Transition Metal",
+			"Poor Metal",
 			"Transition Metal",
 			"Lanthanide",
 			"Actinide",
