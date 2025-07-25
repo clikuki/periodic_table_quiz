@@ -209,7 +209,7 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	box-shadow: 0.6rem 0.6rem black;
 	font-size: 5rem;
 	translate: 0 1px;
-	transition: translate 300ms, opacity 1s;
+	transition: translate 300ms, opacity 1s, background-color 700ms;
 }
 
 :where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-symbol] {
@@ -225,6 +225,7 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	grid-row: 2;
 	font-size: 2rem;
 	pointer-events: none;
+	text-transform: uppercase;
 	transition: opacity 1s;
 }
 
@@ -274,10 +275,12 @@ body:not([data-result="NORMAL"]) :where([data-page="COMPARE"], [data-page="OUTLI
 	width: 9rem;
 	height: 9rem;
 	font-size: 3rem;
-	background-color: black;
+}
+[data-result="NORMAL"] [data-page="OUTLIER"] .element {
+	background-color: hsl(0, 0%, 20%);
 }
 [data-page="OUTLIER"] [data-element-value] {
-	font-size: 2rem;
+	font-size: 1.1rem;
 }
 
 /* || OWNER PAGE / PERIODIC TABLE */

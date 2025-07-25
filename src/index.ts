@@ -69,7 +69,7 @@ function getRandomField(): string {
 
 function getRandomAction(field: string): Actions | null {
 	const dataType = dataTypes[field];
-	const actions: Actions[] = ["OUTLIER"];
+	const actions: Actions[] = [];
 
 	if(dataType.isUnique) actions.push("OWNER");
 	if(dataType.isComparable && dataType.type !== 'BOOLEAN') actions.push("COMPARE");
@@ -77,12 +77,13 @@ function getRandomAction(field: string): Actions | null {
 	switch(dataType.type) {
 		case "NUMBER":
 			actions.push("VALUE")
+			if(dataType.isComparable) actions.push("OUTLIER");
 			break;
 		case "BOOLEAN":
-			actions.push("BOOLEAN")
+			actions.push("BOOLEAN", "OUTLIER")
 			break;
 		case "ENUM":
-			actions.push("CATEGORY")
+			actions.push("CATEGORY", "OUTLIER")
 			break;
 	}
 
@@ -245,7 +246,11 @@ function populateElementData(elementEl: HTMLElement, element: PeriodicElement, f
 	const elementCategory = chemTypeToCSS[element["ChemicalGroup"] as string];
 	elementEl.className = `element ${elementCategory}`;
 	elementEl.querySelector("[data-symbol]")!.textContent = String(element["Symbol"]);
-	elementEl.querySelector("[data-element-value]")!.textContent = String(element[field]);
+	
+	const dt = dataTypes[field];
+	const value = element[field];
+	const unit = dt.type === "NUMBER" ? dt.unit ?? "" : "";
+	elementEl.querySelector("[data-element-value]")!.textContent = `${value} ${unit}`.trim();;
 }
 function handleCompareQuestion(field: string) {
 	// Normalize page before use
@@ -299,10 +304,6 @@ function handleCompareQuestion(field: string) {
 }
 
 function handleOutlierQuestion(field: string) {
-	// Normalize page before use
-	const inputEl = outlierPage.querySelector(".input") as HTMLButtonElement; 
-	inputEl.replaceChildren();
-
 	return new Promise<boolean>(async (resolve) => {
 		await hideAllPages();
 		
@@ -311,6 +312,7 @@ function handleOutlierQuestion(field: string) {
 		const questionEl = outlierPage.querySelector(".question") as HTMLElement;
 		const fieldEl = questionEl.querySelector("[data-field]") as HTMLElement;
 		const answerEl = outlierPage.querySelector("[data-answer]") as HTMLElement;
+		const inputEl = outlierPage.querySelector(".input") as HTMLButtonElement; 
 		fieldEl.textContent = splitCapitalCase(field);
 		
 		const maxElements = 6;
@@ -370,7 +372,7 @@ function handleOutlierQuestion(field: string) {
 			resolve(!target.hasAttribute("data-incorrect"));
 		}
 		inputEl.addEventListener("click", clickCB);
-		inputEl.append(...elementEls);
+		inputEl.replaceChildren(...elementEls);
 
 		revealPage(outlierPage)
 	})

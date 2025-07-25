@@ -81,30 +81,30 @@ const fixedElements = elements.map((e) => {
 		"Metalloid";
 
 	return {
-		AtomicNumber: e.AtomicNumber ?? null,
+		AtomicNumber: thisOr(e.AtomicNumber, null),
  		Element: e.Element,
  		Symbol: e.Symbol,
-		AtomicMass: e.AtomicMass ?? null,
-		NumberOfNeutrons: e.NumberOfNeutrons ?? null,
-		NumberOfProtons: e.NumberOfProtons ?? null,
-		NumberOfElectrons: e.NumberOfElectrons ?? null,
-		Period: e.Period ?? null,
+		AtomicMass: thisOr(e.AtomicMass, null),
+		NumberOfNeutrons: thisOr(e.NumberOfNeutrons, null),
+		NumberOfProtons: thisOr(e.NumberOfProtons, null),
+		NumberOfElectrons: thisOr(e.NumberOfElectrons, null),
+		Period: thisOr(e.Period, null),
 		Group: thisOr(e.Group, "f-group"),
 		Phase: e.Phase.split(" ")[0],
 		Radioactive: toBool(e.Radioactive),
 		Natural: toBool(e.Natural),
 		ElementalCategory,
 		ChemicalGroup: e.Type,
-		AtomicRadius: e.AtomicRadius ?? null,
-		Electronegativity: e.Electronegativity ?? null,
-		IonizationEnergy: e.ionizationEnergy ?? null,
-		Density: e.Density ?? null,
-		MeltingPoint: e.MeltingPoint ?? null,
-		BoilingPoint: e.BoilingPoint ?? null,
-		StableIsotopes: e.stableIsotopes ?? null,
-		SpecificHeat: e.SpecificHeat ?? null,
-		NumberOfShells: e.NumberOfShells ?? null,
-		NumberOfValenceElectrons: e.NumberOfValence ?? null,
+		AtomicRadius: thisOr(e.AtomicRadius, null),
+		Electronegativity: thisOr(e.Electronegativity, null),
+		IonizationEnergy: thisOr(e.ionizationEnergy, null),
+		Density: thisOr(e.Density, null),
+		MeltingPoint: thisOr(e.MeltingPoint, null),
+		BoilingPoint: thisOr(e.BoilingPoint, null),
+		StableIsotopes: thisOr(e.stableIsotopes, null),
+		SpecificHeat: thisOr(e.SpecificHeat, null),
+		NumberOfShells: thisOr(e.NumberOfShells, null),
+		NumberOfValenceElectrons: thisOr(e.NumberOfValence, null),
 	};
 });
 
@@ -159,7 +159,7 @@ const dataTypes = {
 	},
 	Phase: {
 		type: "ENUM",
-		values: ["Solid", "Liquid", "Gas", "Unknown"]
+		values: ["Solid", "Liquid", "Gas", "Unknown"],
 	},
 	Radioactive: {
 		type: "BOOLEAN",
