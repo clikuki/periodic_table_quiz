@@ -110,7 +110,7 @@ const comparePage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLEle
 const categoryPage = document.querySelector("[data-page=\"CATEGORY\"]") as HTMLElement;
 const outlierPage = document.querySelector("[data-page=\"OUTLIER\"]") as HTMLElement;
 const menuPage = document.querySelector("[data-page=\"MENU\"]") as HTMLElement;
-const allPages = [valuePage, ownerPage, comparePage, booleanPage, categoryPage, menuPage]
+const allPages = [valuePage, ownerPage, comparePage, booleanPage, categoryPage, outlierPage, menuPage]
 const timeoutDelay = 800;
 
 function hideAllPages() {
