@@ -129,12 +129,12 @@ const fixedElements = elements.map((e) => {
 const dataTypes = {
 	AtomicNumber: {
 		type: "NUMBER",
-		unit: "u",
 		isUnique: true,
 		isComparable: true,
 	},
 	AtomicMass: {
 		type: "NUMBER",
+		unit: "u",
 		isComparable: true,
 	},
 	NumberOfNeutrons: {

@@ -179,6 +179,26 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	opacity: 0.5;
 }
 
+/* || CATEGORY PAGE */
+[data-page="CATEGORY"] .input {
+	display: grid;
+	grid-template-columns: repeat(2, max-content);
+	grid-template-rows: 1fr max-content 1fr;
+	gap: 1rem;
+}
+[data-page="CATEGORY"] select {
+	border: none;
+	font: inherit;
+	font-size: 1.5rem;
+	height: 100%;
+	appearance: base-select;
+}
+[data-page="CATEGORY"] [data-confirm] {
+	font-size: 1.5rem;
+	padding: 1rem;
+	background-color: hsl(50, 100%, 50%);
+}
+
 /* || COMPARE PAGE */
 [data-page="COMPARE"] [data-comparison="LOWER"] .higher {
 	display: none;

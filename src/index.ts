@@ -103,12 +103,14 @@ const valuePage = document.querySelector("[data-page=\"VALUE\"]") as HTMLElement
 const ownerPage = document.querySelector("[data-page=\"OWNER\"]") as HTMLElement;
 const booleanPage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLElement;
 const comparePage = document.querySelector("[data-page=\"COMPARE\"]") as HTMLElement;
+const categoryPage = document.querySelector("[data-page=\"CATEGORY\"]") as HTMLElement;
 const menuPage = document.querySelector("[data-page=\"MENU\"]") as HTMLElement;
+const allPages = [valuePage, ownerPage, comparePage, booleanPage, categoryPage, menuPage]
 const timeoutDelay = 800;
 
 function hideAllPages() {
 	return new Promise<void>((resolve) => {
-		for(const page of [valuePage, ownerPage, comparePage, booleanPage, menuPage]) {
+		for(const page of allPages) {
 			if(!page.hasAttribute("data-active")) continue;
 
 			// If transtion event fails to fire for any reason, timer will be used as fallback
@@ -328,6 +330,55 @@ function handleBooleanQuestion(field: string) {
 	})
 }
 
+function handleCategoryQuestion(field: string) {
+	return new Promise<boolean>(async (resolve, reject) => {
+		await hideAllPages();
+		
+		const dataType = dataTypes[field];
+		if(dataType.type !== 'ENUM') {
+			reject(Error(`"${field}" datatype is not ENUM`));
+			return
+		}
+		const element = getRandomElement();
+		const answer = element[field];
+		if(typeof answer === 'boolean') {
+			reject(Error(`Invalid ${element}[${field}] datatype`));
+			return
+		}
+
+		const fieldEl = categoryPage.querySelector("[data-field]") as HTMLElement;
+		fieldEl.textContent = splitCapitalCase(field);
+
+		const elementEl = categoryPage.querySelector("[data-element]") as HTMLElement;
+		elementEl.textContent = String(element["Element"]);
+
+		const answerEl = categoryPage.querySelector("[data-answer]") as HTMLElement;
+		const unit = (dataTypes[field] as NumberType).unit ?? "";
+		answerEl.textContent = `${answer} ${unit}`.trim();
+
+		const selectEl = categoryPage.querySelector("[data-select]") as HTMLSelectElement;
+		const values = ["", ...dataType.values];
+		selectEl.replaceChildren(...values.map(value => {
+			const optionEl = document.createElement("option");
+			optionEl.textContent = optionEl.value = String(value);
+			return optionEl;
+		}));
+		selectEl.value = "";
+		selectEl.disabled = false;
+		
+
+		const confirmBtn = categoryPage.querySelector("[data-confirm]") as HTMLButtonElement;
+		confirmBtn.addEventListener("click", function selectCB() {
+			if(selectEl.value === "") return;
+			selectEl.disabled = true;
+			selectEl.removeEventListener("click", selectCB);
+			resolve(selectEl.value === String(answer));
+		})
+		
+		revealPage(categoryPage)
+	})
+}
+
 async function handleMenuSwitch(score: number) {
 	await hideAllPages();
 	
@@ -352,7 +403,7 @@ async function nextQuestion() {
 			case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
 			case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
 			case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
-			case "CATEGORY":	break; // TODO: implement CATEGORY questions
+			case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
 			case "OUTLIER":		break; // TODO: implement OUTLIER questions
 		}
 
