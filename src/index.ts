@@ -64,7 +64,8 @@ function getRandomElements(n: number, field?: string): PeriodicElement[] {
 }
 
 function getRandomField(): string {
-	return fields[randIntInRange(fields.length)];
+	const field = fields[randIntInRange(fields.length)];
+	return field;
 }
 
 function getRandomAction(field: string): Actions | null {
@@ -347,7 +348,7 @@ function handleOutlierQuestion(field: string) {
 					if(sign*+val < sign*+answer) continue;
 					break;
 				case "ENUM":
-					if(elements.length > 2 && elements[1][field] !== val) continue;
+					if(elements.length > 1 && elements[1][field] !== val) continue;
 					break;
 			}
 
