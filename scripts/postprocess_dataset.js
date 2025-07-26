@@ -63,11 +63,24 @@ const fields = [
 	"Density",
 	"MeltingPoint",
 	"BoilingPoint",
-	"StableIsotopes",
+	"NumberOfStableIsotopes",
 	"SpecificHeat",
 	"NumberOfShells",
 	"NumberOfValenceElectrons",
 ];
+
+const fixedChemGroupMap = {
+	"Non-Metal": "Non-Metal",
+	"Noble Gas": "Noble Gas",
+	"Alkali Metal": "Alkali Metal",
+	"Alkaline Earth Metal": "Alkaline Metal",
+	"Metalloid": "Metalloid",
+	"Halogen": "Halogen",
+	"Post-Transition Metal": "Poor Metal",
+	"Transition Metal": "Transition Metal",
+	"Lanthanide": "Lanthanide",
+	"Actinide": "Actinide",
+}
 
 const fixedElements = elements.map((e) => {
 	// Combine metal fields
@@ -81,74 +94,158 @@ const fixedElements = elements.map((e) => {
 		"Metalloid";
 
 	return {
-		AtomicNumber: +e.AtomicNumber,
+		AtomicNumber: thisOr(e.AtomicNumber, null),
  		Element: e.Element,
  		Symbol: e.Symbol,
-		AtomicMass: `${+e.AtomicMass} u`,
-		NumberOfNeutrons: +e.NumberOfNeutrons,
-		NumberOfProtons: +e.NumberOfProtons,
-		NumberOfElectrons: +e.NumberOfElectrons,
-		Period: +e.Period,
+		AtomicMass: thisOr(e.AtomicMass, null),
+		NumberOfNeutrons: thisOr(e.NumberOfNeutrons, null),
+		NumberOfProtons: thisOr(e.NumberOfProtons, null),
+		NumberOfElectrons: thisOr(e.NumberOfElectrons, null),
+		Period: thisOr(e.Period, null),
 		Group: thisOr(e.Group, "f-group"),
 		Phase: e.Phase.split(" ")[0],
 		Radioactive: toBool(e.Radioactive),
 		Natural: toBool(e.Natural),
 		ElementalCategory,
-		ChemicalGroup: e.Type,
-		AtomicRadius: +e.AtomicRadius,
-		Electronegativity: +e.Electronegativity,
-		IonizationEnergy: `${+e.ionizationEnergy} eV`,
-		Density: +e.Density,
-		MeltingPoint: `${+e.MeltingPoint} K`,
-		BoilingPoint: `${+e.BoilingPoint} K`,
-		StableIsotopes: +e.stableIsotopes,
-		SpecificHeat: `${+e.SpecificHeat} J/g°C`,
-		NumberOfShells: +e.NumberOfShells,
-		NumberOfValenceElectrons: +e.NumberOfValence,
-		// Discoverer: thisOr(e.Discoverer, "N/A"),
-		// Year: thisOr(e.Year, "N/A"),
+		ChemicalGroup: fixedChemGroupMap[e.Type],
+		AtomicRadius: thisOr(e.AtomicRadius, null),
+		Electronegativity: thisOr(e.Electronegativity, null),
+		IonizationEnergy: thisOr(e.ionizationEnergy, null),
+		Density: thisOr(e.Density, null),
+		MeltingPoint: thisOr(e.MeltingPoint, null),
+		BoilingPoint: thisOr(e.BoilingPoint, null),
+		NumberOfStableIsotopes: thisOr(e.stableIsotopes, null),
+		SpecificHeat: thisOr(e.SpecificHeat, null),
+		NumberOfShells: thisOr(e.NumberOfShells, null),
+		NumberOfValenceElectrons: thisOr(e.NumberOfValence, null),
 	};
 });
 
 /**
- * # Question Types
+ * || Question Types
  * VALUE - Enter close value
  * OWNER - Enter the element which this value belongs to
  * COMPARE - Given two elements, select the element with a higher value
  * BOOLEAN - Is the property applicatble to this element?
- *
  * # Ideas
- * MATCH - match a value to 2 or more elements
+ * OUTLIER - find correct element among elements
  * CATEGORY - for fields with limited value set
+ * 
+ * || Value types
+ * # Store in obj { type, <additional data> }
+ * String
+ * Number (may have unit attached)
+ * Boolean
+ * Range (min, max)
+ * Selection (with values: string[])
  */
-const actions = {
-	AtomicNumber: ["VALUE", "OWNER", "COMPARE"],
-	AtomicMass: ["COMPARE"],
-	NumberOfNeutrons: ["VALUE", "COMPARE"],
-	NumberOfProtons: ["VALUE", "COMPARE"],
-	NumberOfElectrons: ["VALUE", "COMPARE"],
-	Period: ["VALUE"],
-	Group: ["VALUE"],
-	Phase: ["VALUE"],
-	Radioactive: ["BOOLEAN"],
-	Natural: ["BOOLEAN"],
-	ElementalCategory: ["VALUE"],
-	ChemicalGroup: ["VALUE"],
-	AtomicRadius: ["COMPARE"],
-	Electronegativity: ["COMPARE"],
-	IonizationEnergy: ["COMPARE"],
-	Density: ["COMPARE"],
-	MeltingPoint: ["COMPARE"],
-	BoilingPoint: ["COMPARE"],
-	StableIsotopes: ["COMPARE"],
-	SpecificHeat: ["COMPARE"],
-	NumberOfShells: ["COMPARE"],
-	NumberOfValenceElectrons: ["COMPARE"],
-};
+const dataTypes = {
+	AtomicNumber: {
+		type: "NUMBER",
+		isUnique: true,
+		isComparable: true,
+	},
+	AtomicMass: {
+		type: "NUMBER",
+		unit: "u",
+		isComparable: true,
+	},
+	NumberOfNeutrons: {
+		type: "NUMBER",
+		isComparable: true,
+	},
+	NumberOfProtons: {
+		type: "NUMBER",
+		isComparable: true,
+	},
+	NumberOfElectrons: {
+		type: "NUMBER",
+		isComparable: true,
+	},
+	Period: {
+		type: "ENUM",
+		values: Array(7).fill(1).map((_,i)=>`${i+1}`)
+	},
+	Group: {
+		type: "ENUM",
+		values: Array(18).fill(1).map((_,i)=>`${i+1}`).concat("f-block")
+	},
+	Phase: {
+		type: "ENUM",
+		values: ["Solid", "Liquid", "Gas", "Unknown"],
+	},
+	Radioactive: {
+		type: "BOOLEAN",
+	},
+	Natural: {
+		type: "BOOLEAN",
+	},
+	ElementalCategory: {
+		type: "ENUM",
+		values: ["Metal","Nonmetal","Metalloid"],
+	},
+	ChemicalGroup: {
+		type: "ENUM",
+		values: [
+			"Non-Metal",
+			"Noble Gas",
+			"Alkali Metal",
+			"Alkaline Metal",
+			"Metalloid",
+			"Halogen",
+			"Poor Metal",
+			"Transition Metal",
+			"Lanthanide",
+			"Actinide",
+		],
+	},
+	AtomicRadius: {
+		type: "NUMBER",
+		isComparable: true,
+	},
+	Electronegativity: {
+		type: "NUMBER",
+		isComparable: true,
+	},
+	IonizationEnergy: {
+		type: "NUMBER",
+		unit: "eV",
+		isComparable: true,
+	},
+	Density: {
+		type: "NUMBER",
+		isComparable: true,
+	},
+	MeltingPoint: {
+		type: "NUMBER",
+		unit: "K",
+		isComparable: true,
+	},
+	BoilingPoint: {
+		type: "NUMBER",
+		unit: "K",
+		isComparable: true,
+	},
+	NumberOfStableIsotopes: {
+		type: "NUMBER",
+	},
+	SpecificHeat: {
+		type: "NUMBER",
+		unit: "J/g°C",
+		isComparable: true,
+	},
+	NumberOfShells: {
+		type: "NUMBER",
+	},
+	NumberOfValenceElectrons: {
+		type: "NUMBER",
+		isComparable: true,
+	},
+}
 
 const newData = {
 	Fields: fields,
-	Actions: actions,
+	DataTypes: dataTypes,
 	Elements: fixedElements,
 };
 

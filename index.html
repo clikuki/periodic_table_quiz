@@ -22,8 +22,9 @@
 			<section data-page="VALUE">
 				<div class="container around">
 					<div class="question card">
-						What is the <span data-field>FIELD</span> of
-						<span data-element>ELEMENT</span>?
+						What is the<br>
+						<span data-field>FIELD</span><br>
+						of <span data-element>ELEMENT</span>?
 					</div>
 					<div class="correction card">
 						<span class="text">Correct Answer</span>
@@ -207,6 +208,51 @@
 						<span data-element-value>B</span>
 					</button>
 				</div>
+			</section>
+			<section data-page="CATEGORY">
+				<div class="container around">
+					<div class="question card">
+						What is the <span data-field>FIELD</span> of
+						<span data-element>ELEMENT</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="input">
+					<select class="card" data-select>
+						<!-- <option value="" data-empty>N/A</option> -->
+					</select>
+					<button class="card" data-confirm>CONFIRM</button>
+				</div>
+			</section>
+			<section data-page="OUTLIER">
+				<div class="container around">
+					<!-- data-comparison = LOWER HIGHER DIFFERENT NEGATIVE POSITIVE -->
+					<div class="question card" data-comparison="LOWER">
+						Which among these elements
+						<span class="higher">has a higher</span>
+						<span class="lower">has a lower</span>
+						<span class="different">has a different</span>
+						<span class="positive">is</span>
+						<span class="negative">is not</span><br>
+						<span data-field>FIELD</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="input"></div>
+				<template id="element">
+					<button class="element" data-incorrect>
+						<span data-symbol></span>
+						<span data-element-value></span>
+					</button>
+				</template>
 			</section>
 			<section data-page="MENU" data-active>
 				<!-- data-has-played -->

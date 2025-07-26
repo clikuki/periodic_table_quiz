@@ -135,10 +135,12 @@ section[data-page="MENU"]:not([data-has-played]) .score {
 }
 section[data-page="MENU"] .start {
 	background-color: hsl(50, 100%, 50%);
+	transition: scale 700ms; 
 }
-section[data-page="MENU"][data-has-played] .first-time {
-	display: none;
+section[data-page="MENU"] .start:hover {
+	scale: 1.1;
 }
+section[data-page="MENU"][data-has-played] .first-time,
 section[data-page="MENU"]:not([data-has-played]) .repeat {
 	display: none;
 }
@@ -175,13 +177,82 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	opacity: 0.5;
 }
 
+/* || CATEGORY PAGE */
+[data-page="CATEGORY"] .input {
+	display: grid;
+	grid-template-columns: repeat(2, max-content);
+	grid-template-rows: 1fr max-content 1fr;
+	gap: 1rem;
+}
+[data-page="CATEGORY"] select {
+	border: none;
+	font: inherit;
+	font-size: 1.5rem;
+	height: 100%;
+	appearance: base-select;
+}
+[data-page="CATEGORY"] [data-confirm] {
+	font-size: 1.5rem;
+	padding: 1rem;
+	background-color: hsl(50, 100%, 50%);
+}
+
+/* || COMPARE & OUTLIER PAGES */
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) .element {
+	display: grid;
+	justify-items: center;
+	align-items: center;
+	grid-template-rows: 1fr 3rem;
+	width: 13rem;
+	height: 13rem;
+	color: white;
+	box-shadow: 0.6rem 0.6rem black;
+	font-size: 5rem;
+	translate: 0 1px;
+	transition: translate 300ms, opacity 1s, background-color 700ms;
+}
+
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-symbol] {
+	grid-column: 1;
+	font-weight: 500;
+	text-transform: initial;
+	pointer-events: none;
+}
+
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-element-value] {
+	grid-column: 1;
+	align-self: end;
+	font-size: 2rem;
+	pointer-events: none;
+	text-transform: uppercase;
+	transition: opacity 1s;
+}
+
+[data-result="NORMAL"] :where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-element-value] {
+	opacity: 0;
+	transition: none;
+}
+
+[data-result="NORMAL"] :where([data-page="COMPARE"], [data-page="OUTLIER"]) .input button:not(:hover),
+body:not([data-result="NORMAL"]) :where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-incorrect] {
+	translate: 0 1rem;
+}
+body:not([data-result="NORMAL"]) :where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-incorrect] {
+	opacity: 0.5;
+}
+
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) :where(.higher, .lower, .different, .negative, .positive) {
+	display: none;
+}
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="LOWER"] .lower,
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="HIGHER"] .higher,
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="DIFFERENT"] .different,
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="NEGATIVE"] .negative,
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="POSITIVE"] .positive {
+	display: initial;
+}
+
 /* || COMPARE PAGE */
-[data-page="COMPARE"] [data-comparison="LOWER"] .higher {
-	display: none;
-}
-[data-page="COMPARE"] [data-comparison="HIGHER"] .lower {
-	display: none;
-}
 [data-page="COMPARE"] .input {
 	width: 100%;
 	display: grid;
@@ -190,41 +261,27 @@ body:not([data-result="NORMAL"]) [data-page="BOOLEAN"] [data-incorrect] {
 	align-items: center;
 	flex: 1;
 }
-[data-page="COMPARE"] .element {
-	display: grid;
-	justify-items: center;
-	align-items: center;
-	grid-template-rows: 1fr max-content;
-	width: 13rem;
-	height: 13rem;
-	color: white;
-	box-shadow: .6rem .6rem black;
-	transition: translate 300ms, opacity 1s;
+
+/* || OUTLIER PAGE */
+[data-page="OUTLIER"] .input {
+	max-width: 35rem;
+	display: flex;
+	justify-content: center;
+	align-content: start;
+	flex-wrap: wrap;
+	gap: 1.2rem 1rem;
+	flex: 1;
 }
-[data-page="COMPARE"] [data-symbol] {
-	text-transform: unset;
-	font-size: 5rem;
-	font-weight: 500;
-	grid-column: 1;
-	grid-row: 1 / span 2;
-	pointer-events: none;
+[data-page="OUTLIER"] .element {
+	width: 9rem;
+	height: 9rem;
+	font-size: 3rem;
 }
-[data-page="COMPARE"] [data-element-value] {
-	font-size: 2rem;
-	transition: opacity 1s;
-	grid-column: 1;
-	grid-row: 2;
+[data-result="NORMAL"] [data-page="OUTLIER"] .element {
+	background-color: hsl(0, 0%, 20%);
 }
-[data-result="NORMAL"] [data-page="COMPARE"] [data-element-value] {
-	opacity: 0;
-	transition: none;
-}
-[data-result="NORMAL"] [data-page="COMPARE"] .input button:not(:hover),
-body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
-	translate: 0 1rem;
-}
-body:not([data-result="NORMAL"]) [data-page="COMPARE"] [data-incorrect] {
-	opacity: 0.5;
+[data-page="OUTLIER"] [data-element-value] {
+	font-size: 1.1rem;
 }
 
 /* || OWNER PAGE / PERIODIC TABLE */
@@ -260,8 +317,8 @@ body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 	opacity: .5;
 	cursor: revert;
 	color: transparent;
-	filter: unset;
-	scale: unset;
+	filter: initial;
+	scale: initial;
 	z-index: initial;
 }
 .table [data-value="HELIUM"] {
