@@ -1,0 +1,19 @@
+{
+	"name": "periodic_table_quiz",
+	"type": "module",
+	"private": true,
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"build": "tsc --sourceMap false",
+  	"check": "tsc --noEmit",
+		"watch": "tsc -w"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"typescript": "^5.8.3"
+	}
+}
