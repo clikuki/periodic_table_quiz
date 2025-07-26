@@ -7,12 +7,13 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "tsc --sourceMap false",
+  	"check": "tsc --noEmit",
 		"watch": "tsc -w"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"typescript": "^4.9.5"
+		"typescript": "^5.8.3"
 	}
 }
