@@ -39,8 +39,8 @@ const chemTypeToCSS: Record<string, string> = {
 	"Actinide": "actinoid",
 }
 
-function randIntInRange(max: number): number {
-	return Math.floor(Math.random() * max);
+function randIntInRange(max: number, min = 0): number {
+	return Math.floor(Math.random() * (max-min)+min);
 }
 
 function getRandomElement(): PeriodicElement {
@@ -316,52 +316,61 @@ function handleOutlierQuestion(field: string) {
 		const inputEl = outlierPage.querySelector(".input") as HTMLButtonElement; 
 		fieldEl.textContent = splitCapitalCase(field);
 		
+		// Checking the dataset shows that all 6 elements is not too much to run into empty edge cases
 		const maxElements = 6;
-		const sign = Math.random() < .5 ? 1 : -1;
+		const findHigherAnswer = Math.random() < .5;
+		const sign = findHigherAnswer ? 1 : -1;
 		const elements: PeriodicElement[] = [];
 
 		const comparisonType =
 			dataType.type === "NUMBER" ?
-				(sign < 0 ? "HIGHER" : "LOWER") :
+				(findHigherAnswer ? "HIGHER" : "LOWER") :
 				("DIFFERENT")
 		questionEl.setAttribute("data-comparison", comparisonType);
 
-		// 1. Find the "correct" element
-		while(true) {
-			elements[0] = getRandomElement();
-			if(elements[0][field] === null) continue;
-			break;
-		}
-		const answer = elements[0][field];
-		answerEl.textContent = String(elements[0]["Element"]);
+		if(dataType.type === 'NUMBER') {
+			const sorted = (tableElements as Record<string,number>[]).toSorted((a,b)=>sign*a[field]-sign*b[field]);
+			const idx = randIntInRange(sorted.length,maxElements);
+			const correctElement = sorted[idx];
+			elements.push(correctElement);
+			answerEl.textContent = String(correctElement["Symbol"]);
 
-		// 2. Find the "wrong" elements
-		let iterCnt = 1000;
-		while(elements.length < maxElements && iterCnt++ > 0) {
-			const different = getRandomElement();
-			const val = different[field];
-			if(val === null || val === answer) continue;
-			
-			switch(dataType.type) {
-				case "BOOLEAN": break;
-				case "NUMBER":
-					if(sign*+val < sign*+answer) continue;
-					break;
-				case "ENUM":
-					if(elements.length > 1 && elements[1][field] !== val) continue;
-					break;
+			const incorrectElements = sorted.slice(0, idx);
+			while(elements.length < maxElements) {
+				const last = incorrectElements.length-1;
+				const jdx = randIntInRange(incorrectElements.length);
+				[incorrectElements[jdx],incorrectElements[last]] = [incorrectElements[last],incorrectElements[jdx]]
+				elements.push(incorrectElements.pop()!);
 			}
+		}
+		else {
+			const grouped = Object.groupBy(tableElements, (el) => String(el[field]));
+			const [correctCategory, ...restCategories] = Object.keys(grouped).sort(()=>Math.random()-.5);
+			const correctGroup = grouped[correctCategory]!;
+			const correctElement = correctGroup[randIntInRange(correctGroup.length)];
+			elements.push(correctElement);
+			answerEl.textContent = String(correctElement["Symbol"]);
 
-			elements.push(different);
+			for(const category of restCategories.sort(()=>Math.random()-0.5)) {
+				const group = grouped[category]!;
+				if(group.length < maxElements - 1) continue; // too small
+				while(elements.length < maxElements) {
+					const last = group.length-1;
+					const jdx = randIntInRange(group.length);
+					[group[jdx],group[last]] = [group[last],group[jdx]]
+					elements.push(group.pop()!);
+				}
+				break;
+			}
 		}
 
-		// 3. Build HTML
-		const elementEls = elements.map((e) => {
+		// Build HTML
+		const elementEls = elements.map((e,i) => {
 			const fragment = elementTemplate.content.cloneNode(true) as DocumentFragment;
 			const btn = fragment.querySelector('.element') as HTMLButtonElement;
 
 			populateElementData(btn, e, field);
-			if(e[field] === answer) btn.removeAttribute("data-incorrect");
+			if(!i) btn.removeAttribute("data-incorrect");
 
 			return fragment;
 		}).sort(() => Math.random() - .5);
