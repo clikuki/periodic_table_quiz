@@ -164,6 +164,26 @@ function isApproxEqual(input: string, value: number): boolean {
 	return Math.abs(value - +input) < .5;
 }
 
+function moveRandomFromArray<T>(from: T[], dest: T[], maxLength: number) {
+	while(dest.length < maxLength && from.length) {
+		const last = from.length-1;
+		const idx = randIntInRange(from.length);
+		[from[idx],from[last]] = [from[last],from[idx]]
+		dest.push(from.pop()!);
+	}
+}
+
+function populateElementData(elementEl: HTMLElement, element: PeriodicElement, field: string) {
+	const elementCategory = chemTypeToCSS[element["ChemicalGroup"] as string];
+	elementEl.className = `element ${elementCategory}`;
+	elementEl.querySelector("[data-symbol]")!.textContent = String(element["Symbol"]);
+	
+	const dt = dataTypes[field];
+	const value = element[field];
+	const unit = dt.type === "NUMBER" ? dt.unit ?? "" : "";
+	elementEl.querySelector("[data-element-value]")!.textContent = `${value} ${unit}`.trim();;
+}
+
 function beforeNextPage(correct: boolean) {
 	return new Promise<MouseEvent>((resolve) => {
 		document.body.setAttribute("data-result", correct ? "CORRECT" : "INCORRECT")
@@ -243,16 +263,6 @@ function handleOwnerQuestion(field: string) {
 	})
 }
 
-function populateElementData(elementEl: HTMLElement, element: PeriodicElement, field: string) {
-	const elementCategory = chemTypeToCSS[element["ChemicalGroup"] as string];
-	elementEl.className = `element ${elementCategory}`;
-	elementEl.querySelector("[data-symbol]")!.textContent = String(element["Symbol"]);
-	
-	const dt = dataTypes[field];
-	const value = element[field];
-	const unit = dt.type === "NUMBER" ? dt.unit ?? "" : "";
-	elementEl.querySelector("[data-element-value]")!.textContent = `${value} ${unit}`.trim();;
-}
 function handleCompareQuestion(field: string) {
 	// Normalize page before use
 	const inputEl = comparePage.querySelector(".input") as HTMLButtonElement; 
@@ -317,44 +327,37 @@ function handleOutlierQuestion(field: string) {
 		fieldEl.textContent = splitCapitalCase(field);
 		
 		// Checking the dataset shows that all 6 elements is not too much to run into empty edge cases
-		const maxElements = 6;
+		const elementCount = 6;
 		const elements: PeriodicElement[] = [];
 
+		// IDEA: maybe rewrite to use maxElements rather than element count due to
+		// possible bias towards largers groups being the "incorrect" group
 		if(dataType.type === 'NUMBER') {
+			// Pick a "correct" element, then find either lower or higher
 			const findHigherAnswer = Math.random() < .5;
 			const sign = findHigherAnswer ? 1 : -1;
 			const sorted = (tableElements as Record<string,number>[]).toSorted((a,b)=>sign*a[field]-sign*b[field]);
-			const idx = randIntInRange(sorted.length,maxElements);
+			const idx = randIntInRange(sorted.length,elementCount);
 			const correctElement = sorted[idx];
 			elements.push(correctElement);
 			
 			const incorrectElements = sorted.slice(0, idx);
-			while(elements.length < maxElements) {
-				const last = incorrectElements.length-1;
-				const jdx = randIntInRange(incorrectElements.length);
-				[incorrectElements[jdx],incorrectElements[last]] = [incorrectElements[last],incorrectElements[jdx]]
-				elements.push(incorrectElements.pop()!);
-			}
+			moveRandomFromArray(incorrectElements, elements, elementCount);
 
 			answerEl.textContent = String(correctElement["Element"]);
 			questionEl.setAttribute("data-comparison", findHigherAnswer ? "HIGHER" : "LOWER");
 		}
 		else {
-			const grouped = Object.groupBy(tableElements, (el) => String(el[field]));
-			const [correctCategory, ...restCategories] = Object.keys(grouped).sort(()=>Math.random()-.5);
-			const correctGroup = grouped[correctCategory]!;
-			const correctElement = correctGroup[randIntInRange(correctGroup.length)];
+      const grouped = Object.groupBy(tableElements, (el) => String(el[field]));
+      const [correctCategory, ...restCategories] = Object.keys(grouped).sort(() => Math.random() - 0.5);
+      const correctGroup = grouped[correctCategory]!;
+      const correctElement = correctGroup[randIntInRange(correctGroup.length)];
 			elements.push(correctElement);
 
 			for(const category of restCategories.sort(()=>Math.random()-0.5)) {
 				const group = grouped[category]!;
-				if(group.length < maxElements - 1) continue; // too small
-				while(elements.length < maxElements) {
-					const last = group.length-1;
-					const jdx = randIntInRange(group.length);
-					[group[jdx],group[last]] = [group[last],group[jdx]]
-					elements.push(group.pop()!);
-				}
+				if(group.length < elementCount - 1) continue; // too small
+				moveRandomFromArray(group, elements, elementCount);
 				break;
 			}
 
@@ -369,7 +372,7 @@ function handleOutlierQuestion(field: string) {
 			const btn = fragment.querySelector('.element') as HTMLButtonElement;
 
 			populateElementData(btn, e, field);
-			if(!i) btn.removeAttribute("data-incorrect");
+			if(!i) btn.removeAttribute("data-incorrect"); // First element is always the correct one
 
 			return fragment;
 		}).sort(() => Math.random() - .5);
@@ -493,11 +496,11 @@ async function nextQuestion() {
 		
 		let isCorrect: boolean | null = null; // can be null for debugging purposes
 		switch(action) {
-			// case "VALUE":			isCorrect = await handleValueQuestion(field); break;
-			// case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
-			// case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
-			// case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
-			// case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
+			case "VALUE":			isCorrect = await handleValueQuestion(field); break;
+			case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
+			case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
+			case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
+			case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
 			case "OUTLIER":		isCorrect = await handleOutlierQuestion(field); break;
 		}
 
