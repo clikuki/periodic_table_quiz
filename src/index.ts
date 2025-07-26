@@ -318,23 +318,16 @@ function handleOutlierQuestion(field: string) {
 		
 		// Checking the dataset shows that all 6 elements is not too much to run into empty edge cases
 		const maxElements = 6;
-		const findHigherAnswer = Math.random() < .5;
-		const sign = findHigherAnswer ? 1 : -1;
 		const elements: PeriodicElement[] = [];
 
-		const comparisonType =
-			dataType.type === "NUMBER" ?
-				(findHigherAnswer ? "HIGHER" : "LOWER") :
-				("DIFFERENT")
-		questionEl.setAttribute("data-comparison", comparisonType);
-
 		if(dataType.type === 'NUMBER') {
+			const findHigherAnswer = Math.random() < .5;
+			const sign = findHigherAnswer ? 1 : -1;
 			const sorted = (tableElements as Record<string,number>[]).toSorted((a,b)=>sign*a[field]-sign*b[field]);
 			const idx = randIntInRange(sorted.length,maxElements);
 			const correctElement = sorted[idx];
 			elements.push(correctElement);
-			answerEl.textContent = String(correctElement["Symbol"]);
-
+			
 			const incorrectElements = sorted.slice(0, idx);
 			while(elements.length < maxElements) {
 				const last = incorrectElements.length-1;
@@ -342,6 +335,9 @@ function handleOutlierQuestion(field: string) {
 				[incorrectElements[jdx],incorrectElements[last]] = [incorrectElements[last],incorrectElements[jdx]]
 				elements.push(incorrectElements.pop()!);
 			}
+
+			answerEl.textContent = String(correctElement["Element"]);
+			questionEl.setAttribute("data-comparison", findHigherAnswer ? "HIGHER" : "LOWER");
 		}
 		else {
 			const grouped = Object.groupBy(tableElements, (el) => String(el[field]));
@@ -349,7 +345,6 @@ function handleOutlierQuestion(field: string) {
 			const correctGroup = grouped[correctCategory]!;
 			const correctElement = correctGroup[randIntInRange(correctGroup.length)];
 			elements.push(correctElement);
-			answerEl.textContent = String(correctElement["Symbol"]);
 
 			for(const category of restCategories.sort(()=>Math.random()-0.5)) {
 				const group = grouped[category]!;
@@ -362,6 +357,10 @@ function handleOutlierQuestion(field: string) {
 				}
 				break;
 			}
+
+			answerEl.textContent = String(correctElement["Element"]);
+			if(dataType.type === "ENUM") questionEl.setAttribute("data-comparison", "DIFFERENT");
+			else questionEl.setAttribute("data-comparison", correctElement[field] ? "POSITIVE" : "NEGATIVE");
 		}
 
 		// Build HTML
@@ -494,11 +493,11 @@ async function nextQuestion() {
 		
 		let isCorrect: boolean | null = null; // can be null for debugging purposes
 		switch(action) {
-			case "VALUE":			isCorrect = await handleValueQuestion(field); break;
-			case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
-			case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
-			case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
-			case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
+			// case "VALUE":			isCorrect = await handleValueQuestion(field); break;
+			// case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
+			// case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
+			// case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
+			// case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
 			case "OUTLIER":		isCorrect = await handleOutlierQuestion(field); break;
 		}
 

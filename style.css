@@ -241,12 +241,14 @@ body:not([data-result="NORMAL"]) :where([data-page="COMPARE"], [data-page="OUTLI
 	opacity: 0.5;
 }
 
-:where([data-page="COMPARE"], [data-page="OUTLIER"]) :where(.higher, .lower, .different) {
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) :where(.higher, .lower, .different, .negative, .positive) {
 	display: none;
 }
 :where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="LOWER"] .lower,
 :where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="HIGHER"] .higher,
-:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="DIFFERENT"] .different {
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="DIFFERENT"] .different,
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="NEGATIVE"] .negative,
+:where([data-page="COMPARE"], [data-page="OUTLIER"]) [data-comparison="POSITIVE"] .positive {
 	display: initial;
 }
 

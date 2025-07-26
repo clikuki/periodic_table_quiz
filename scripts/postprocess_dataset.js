@@ -63,7 +63,7 @@ const fields = [
 	"Density",
 	"MeltingPoint",
 	"BoilingPoint",
-	"StableIsotopes",
+	"NumberOfStableIsotopes",
 	"SpecificHeat",
 	"NumberOfShells",
 	"NumberOfValenceElectrons",
@@ -114,7 +114,7 @@ const fixedElements = elements.map((e) => {
 		Density: thisOr(e.Density, null),
 		MeltingPoint: thisOr(e.MeltingPoint, null),
 		BoilingPoint: thisOr(e.BoilingPoint, null),
-		StableIsotopes: thisOr(e.stableIsotopes, null),
+		NumberOfStableIsotopes: thisOr(e.stableIsotopes, null),
 		SpecificHeat: thisOr(e.SpecificHeat, null),
 		NumberOfShells: thisOr(e.NumberOfShells, null),
 		NumberOfValenceElectrons: thisOr(e.NumberOfValence, null),
@@ -226,7 +226,7 @@ const dataTypes = {
 		unit: "K",
 		isComparable: true,
 	},
-	StableIsotopes: {
+	NumberOfStableIsotopes: {
 		type: "NUMBER",
 	},
 	SpecificHeat: {

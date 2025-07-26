@@ -73,7 +73,7 @@ function getRandomField() {
 // 	Density: "NUMBER",									// n
 // 	MeltingPoint: "NUMBER",							// n
 // 	BoilingPoint: "NUMBER",							// n
-// 	StableIsotopes: "NUMBER",						// n
+// 	NumberOfStableIsotopes: "NUMBER",						// n
 // 	SpecificHeat: "NUMBER",							// n
 // 	NumberOfShells: "NUMBER",						// 1,2,3,...,7
 // 	NumberOfValenceElectrons: "NUMBER"	// 1~8?
