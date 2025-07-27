@@ -105,6 +105,8 @@ function splitCapitalCase(str: string): string {
 	return newStr;
 }
 
+class ElementError extends Error {}
+
 const valuePage = document.querySelector("[data-page=\"VALUE\"]") as HTMLElement;
 const ownerPage = document.querySelector("[data-page=\"OWNER\"]") as HTMLElement;
 const booleanPage = document.querySelector("[data-page=\"BOOLEAN\"]") as HTMLElement;
@@ -491,24 +493,30 @@ async function nextQuestion() {
 	let score = 0;
 
 	while(true) {
-		const field = getRandomField();
-		const action = getRandomAction(field);
-		
-		let isCorrect: boolean | null = null; // can be null for debugging purposes
-		switch(action) {
-			case "VALUE":			isCorrect = await handleValueQuestion(field); break;
-			case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
-			case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
-			case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
-			case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
-			case "OUTLIER":		isCorrect = await handleOutlierQuestion(field); break;
+		try {
+			const field = getRandomField();
+			const action = getRandomAction(field);
+			
+			let isCorrect: boolean | null = null; // can be null for debugging purposes
+			switch(action) {
+				case "VALUE":			isCorrect = await handleValueQuestion(field); break;
+				case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
+				case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
+				case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
+				case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
+				case "OUTLIER":		isCorrect = await handleOutlierQuestion(field); break;
+			}
+
+			if(isCorrect === null) continue;
+			await beforeNextPage(isCorrect);
+
+			if(isCorrect) ++score;
+			else break;	
 		}
-
-		if(isCorrect === null) continue;
-		await beforeNextPage(isCorrect);
-
-		if(isCorrect) ++score;
-		else break;
+		catch(e) {
+			// Try another question if element has null field
+			if(!(e instanceof ElementError)) throw e;
+		}
 	}
 
 	handleMenuSwitch(score);
