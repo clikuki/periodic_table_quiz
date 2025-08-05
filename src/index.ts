@@ -68,23 +68,32 @@ function getRandomField(): string {
 	return field;
 }
 
-function getRandomAction(field: string): Actions | null {
+function getRandomAction(
+	field: string,
+	[score, easyThreshold, normalThreshold]: [number, number, number] = [1, 0, 0]
+): Actions | null {
 	const dataType = dataTypes[field];
 	const actions: Actions[] = [];
+	const isNormal = score >= easyThreshold;
+	const isHard = score >= normalThreshold;
 
-	if(dataType.isUnique) actions.push("OWNER");
-	if(dataType.isComparable && dataType.type !== 'BOOLEAN') actions.push("COMPARE");
+	if(isNormal && dataType.isUnique) actions.push("OWNER","OWNER","OWNER");
+	if(dataType.isComparable && dataType.type !== 'BOOLEAN') {
+		if(isNormal) actions.push("COMPARE");
+		if(isHard) actions.push("COMPARE");
+	}
 
 	switch(dataType.type) {
 		case "NUMBER":
-			actions.push("VALUE")
-			if(dataType.isComparable) actions.push("OUTLIER");
+			if(isHard) actions.push("OUTLIER", "VALUE");
 			break;
 		case "BOOLEAN":
-			actions.push("BOOLEAN", "OUTLIER")
+			actions.push("BOOLEAN", "OUTLIER");
+			if(isHard) actions.push("OUTLIER");
 			break;
 		case "ENUM":
-			actions.push("CATEGORY", "OUTLIER")
+			if(isNormal) actions.push("OUTLIER");
+			if(isHard) actions.push("OUTLIER","CATEGORY");
 			break;
 	}
 
@@ -492,10 +501,12 @@ async function handleMenuSwitch(score: number) {
 async function nextQuestion() {
 	let score = 0;
 
+	const easyThreshold = 7;
+	const normalThreshold = 20;
 	while(true) {
 		try {
 			const field = getRandomField();
-			const action = getRandomAction(field);
+			const action = getRandomAction(field, [score, easyThreshold, normalThreshold]);
 			
 			let isCorrect: boolean | null = null; // can be null for debugging purposes
 			switch(action) {
