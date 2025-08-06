@@ -59,6 +59,32 @@ body[data-result="INCORRECT"] .backgrounds .incorrect {
 	);
 }
 
+/* || TIMER */
+.timer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: .4rem;
+	transition: opacity 500ms;
+}
+.timer[data-hide] {
+	opacity: 0;
+}
+.timer::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 100%;
+	width: var(--percent, 100%);
+	background-image: linear-gradient(yellow 40%, transparent);
+	transition: width linear 100ms;
+}
+.timer[data-hide]::after {
+	transition: none;
+}
+
 /* || CONTAINERS */
 .page-containers {
 	position: relative;

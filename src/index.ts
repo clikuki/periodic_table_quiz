@@ -195,6 +195,31 @@ function populateElementData(elementEl: HTMLElement, element: PeriodicElement, f
 	elementEl.querySelector("[data-element-value]")!.textContent = `${value} ${unit}`.trim();;
 }
 
+function setTimer(seconds: number) {
+	const timerEl = document.querySelector(".timer") as HTMLElement | null;
+	if(!timerEl) throw Error("Timer element does not exist!");
+	timerEl.removeAttribute("data-hide");
+	timerEl.style.setProperty("--percent", "100%")
+
+	const start = Date.now();
+	const duration = seconds * 1000;
+	const delay = 100; // Delay before ending timer
+	return new Promise<void>((resolve)=>{
+		requestAnimationFrame(function updateTimer() {
+			const now = Date.now();
+			if(now > start + duration + delay) {
+				timerEl.setAttribute("data-hide", "");
+				resolve();
+			}
+			else {
+				requestAnimationFrame(updateTimer);
+				const percent = Math.max(100 - 100 * (now - start) / duration, 0);
+				timerEl.style.setProperty("--percent", `${percent}%`);
+			}
+		})
+	})
+}
+
 function beforeNextPage(correct: boolean) {
 	return new Promise<MouseEvent>((resolve) => {
 		document.body.setAttribute("data-result", correct ? "CORRECT" : "INCORRECT")
@@ -487,18 +512,18 @@ function handleCategoryQuestion(field: string) {
 	})
 }
 
-async function handleMenuSwitch(score: number) {
+async function handleMenuSwitch(scoreMsg: string) {
 	await hideAllPages();
 	
 	menuPage.setAttribute('data-has-played', "");
 
 	const scoreEl = menuPage.querySelector("[data-score]") as HTMLElement;
-	scoreEl.textContent = String(score);
+	scoreEl.textContent = scoreMsg;
 	
 	revealPage(menuPage, false);
 }
 
-async function nextQuestion() {
+async function startSurvivalMode() {
 	let score = 0;
 
 	const easyThreshold = 7;
@@ -530,13 +555,52 @@ async function nextQuestion() {
 		}
 	}
 
-	handleMenuSwitch(score);
+	handleMenuSwitch(String(score));
+}
+
+async function startTimedMode() {
+	let score = 0;
+	let totalQuestions = 0;
+	let keepRunning = true;
+
+	setTimer(5).then(() => keepRunning = false);
+
+	const easyThreshold = 7;
+	const normalThreshold = 20;
+	while(keepRunning) {
+		try {
+			const field = getRandomField();
+			const action = getRandomAction(field, [score, easyThreshold, normalThreshold]);
+			
+			let isCorrect: boolean | null = null; // can be null for debugging purposes
+			switch(action) {
+				case "VALUE":			isCorrect = await handleValueQuestion(field); break;
+				case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
+				case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
+				case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
+				case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
+				case "OUTLIER":		isCorrect = await handleOutlierQuestion(field); break;
+			}
+
+			if(isCorrect === null) continue;
+			await beforeNextPage(isCorrect);
+
+			++totalQuestions;
+			if(isCorrect) ++score;
+		}
+		catch(e) {
+			// Try another question if element has null field
+			if(!(e instanceof ElementError)) throw e;
+		}
+	}
+	
+	handleMenuSwitch(`${score}/${totalQuestions}`);
 }
 
 function main() {
 	// Bind start btn early
 	const startBtn = menuPage.querySelector(".start") as HTMLButtonElement;
-	startBtn.addEventListener("click", nextQuestion);
+	startBtn.addEventListener("click", startTimedMode);
 }
 
 main();
