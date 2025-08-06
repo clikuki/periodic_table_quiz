@@ -70,7 +70,7 @@ function getRandomField(): string {
 
 function getRandomAction(
 	field: string,
-	[score, easyThreshold, normalThreshold]: [number, number, number] = [1, 0, 0]
+	[score, easyThreshold, normalThreshold]: [number, number, number] = [0, -2, -1]
 ): Actions | null {
 	const dataType = dataTypes[field];
 	const actions: Actions[] = [];
@@ -227,289 +227,337 @@ function beforeNextPage(correct: boolean) {
 	})
 }
 
-function handleValueQuestion(field: string) {
-	return new Promise<boolean>(async (resolve, reject) => {
-		await hideAllPages();
-		
-		const element = getRandomElement();
-		const answer = element[field];
-		if(typeof answer !== 'number') {
-			reject(Error(`Invalid ${element}[${field}] datatype`));
-			return
-		}
+function handleValueQuestion(field: string): QuestionHandlerReturnType {		
+	const element = getRandomElement();
+	const answer = element[field];
+	if(typeof answer !== 'number') {
+		throw Error(`Invalid ${element}[${field}] datatype`);
+	}
 
-		const fieldEl = valuePage.querySelector("[data-field]") as HTMLElement;
-		fieldEl.textContent = splitCapitalCase(field);
+	const fieldEl = valuePage.querySelector("[data-field]") as HTMLElement;
+	const elementEl = valuePage.querySelector("[data-element]") as HTMLElement;
+	const answerEl = valuePage.querySelector("[data-answer]") as HTMLElement;
+	const inputEl = valuePage.querySelector("[data-input]") as HTMLInputElement;
+	const unit = (dataTypes[field] as NumberType).unit ?? "";
 
-		const elementEl = valuePage.querySelector("[data-element]") as HTMLElement;
-		elementEl.textContent = String(element["Element"]);
+	return {
+		value: new Promise<boolean>(async (resolve) => {
+			await hideAllPages();
 
-		const answerEl = valuePage.querySelector("[data-answer]") as HTMLElement;
-		const unit = (dataTypes[field] as NumberType).unit ?? "";
-		answerEl.textContent = `${answer} ${unit}`.trim();
+			fieldEl.textContent = splitCapitalCase(field);
+			elementEl.textContent = String(element["Element"]);
+			answerEl.textContent = `${answer} ${unit}`.trim();
+			inputEl.value = "";
 
-		const inputEl = valuePage.querySelector("[data-input]") as HTMLInputElement;
-		inputEl.value = "";
-		inputEl.addEventListener("keydown", function inputCB(e: KeyboardEvent) {
-			if(e.key !== "Enter") return;
-			inputEl.removeEventListener("keydown", inputCB);
-			resolve(isApproxEqual(inputEl.value, answer));
-		})
-		
-		revealPage(valuePage)
-	})
+			inputEl.addEventListener("keydown", function inputCB(e: KeyboardEvent) {
+				if(e.key !== "Enter") return;
+				inputEl.removeEventListener("keydown", inputCB);
+				resolve(isApproxEqual(inputEl.value, answer));
+			})
+			
+			revealPage(valuePage)
+		}),
+		cancel() {
+			inputEl.dispatchEvent(new KeyboardEvent('keydown', { key: "Enter" }));
+		},
+	}
 }
 
-function handleOwnerQuestion(field: string) {
-	return new Promise<boolean>(async (resolve) => {
-		await hideAllPages();
-		
-		const fieldEl = ownerPage.querySelector("[data-field]") as HTMLElement;
-		fieldEl.textContent = splitCapitalCase(field);
+function handleOwnerQuestion(field: string): QuestionHandlerReturnType {
+	const element = getRandomElement();
+	const elementName = (element["Element"] as string).toUpperCase();
+	const value = element[field];
 
-		const valueEl = ownerPage.querySelector("[data-value]") as HTMLElement;
-		const element = getRandomElement();
-		const elementName = (element["Element"] as string).toUpperCase();
-		const value = element[field];
-		valueEl.textContent = String(value);
-		
-		const answerEl = ownerPage.querySelector("[data-answer]") as HTMLElement;
-		answerEl.textContent = elementName;
+	const fieldEl = ownerPage.querySelector("[data-field]") as HTMLElement;
+	const valueEl = ownerPage.querySelector("[data-value]") as HTMLElement;
+	const answerEl = ownerPage.querySelector("[data-answer]") as HTMLElement;
+	const vowelIsNext = ownerPage.querySelector(".vowel-is-next") as HTMLElement;
+	const tableEl = ownerPage.querySelector(".table") as HTMLElement;
+	const prevAnswerEl = tableEl.querySelector("[data-correct]") as HTMLElement | null;
+	const currAnswerEl = tableEl.querySelector(`[data-value="${elementName}"]`) as HTMLElement;
 
-		const vowelIsNext = ownerPage.querySelector(".vowel-is-next") as HTMLElement;
-		if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
-		else vowelIsNext.classList.add("hide")
+	return {
+		value: new Promise<boolean>(async (resolve) => {
+			await hideAllPages();
+			
+			fieldEl.textContent = splitCapitalCase(field);
+			valueEl.textContent = String(value);
+			answerEl.textContent = elementName;
 
-		const tableEl = ownerPage.querySelector(".table") as HTMLElement;
-		const prevAnswerEl = tableEl.querySelector("[data-correct]") as HTMLElement | null;
-		if(prevAnswerEl) prevAnswerEl.removeAttribute("data-correct");
+			if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
+			else vowelIsNext.classList.add("hide")
 
-		const currAnswerEl = tableEl.querySelector(`[data-value="${elementName}"]`) as HTMLElement;
-		if(!currAnswerEl) console.error(`No element with name "${elementName}" exists!`)
-		else currAnswerEl.setAttribute("data-correct", "")
+			if(prevAnswerEl) prevAnswerEl.removeAttribute("data-correct");
 
-		function tableClickCB(e: MouseEvent) {
-			if(e.target === tableEl) return;
+			if(!currAnswerEl) console.error(`No element with name "${elementName}" exists!`)
+			else currAnswerEl.setAttribute("data-correct", "")
+
+			function tableClickCB(e: MouseEvent) {
+				if(e.target === tableEl) return;
+				tableEl.removeEventListener("click", tableClickCB);
+				resolve(e.target === currAnswerEl);
+			}
 			tableEl.addEventListener("click", tableClickCB);
-			resolve(e.target === currAnswerEl);
-		}
-		tableEl.addEventListener("click", tableClickCB);
 
-		revealPage(ownerPage)
-	})
+			revealPage(ownerPage)
+		}),
+		cancel() {
+			const incorrectEl = tableEl.querySelector("button:not([data-correct])")!;
+			incorrectEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+		},
+	}
 }
 
-function handleCompareQuestion(field: string) {
-	// Normalize page before use
+function handleCompareQuestion(field: string): QuestionHandlerReturnType {
+	const elements = getRandomElements(2, field);
+	const goForLower = Math.random() < .5;
+	const sign = goForLower ? -1 : 1;
+
+	const questionEl = comparePage.querySelector(".question") as HTMLElement;
+	const fieldEl = comparePage.querySelector("[data-field]") as HTMLElement;
+	const answerEl = comparePage.querySelector("[data-answer]") as HTMLElement;
 	const inputEl = comparePage.querySelector(".input") as HTMLButtonElement; 
 	const elementLeftEl = inputEl.querySelector(".input .element[data-left]") as HTMLElement;
 	const elementRightEl = inputEl.querySelector(".input .element[data-right]") as HTMLElement;		
+
+	const correctElement = elements.reduce((outlier, element)=> {
+		const outValue = outlier[field] as number;
+		const curValue = element[field] as number;
+		return sign*curValue > sign*outValue ? element : outlier;
+	});
+
+	const elementEls = [elementLeftEl, elementRightEl];
+	if(Math.random() < .5) [elementEls[0], elementEls[1]] = [elementEls[1], elementEls[0]];
+
+	// Normalize page before use
 	elementLeftEl.setAttribute("data-incorrect", "")
 	elementRightEl.setAttribute("data-incorrect", "")
 
-	return new Promise<boolean>(async (resolve) => {
-		await hideAllPages();
-		
-		const questionEl = comparePage.querySelector(".question") as HTMLElement;
-		const goForLower = Math.random() < .5;
-		if(goForLower) questionEl.setAttribute("data-comparison", "LOWER")
-		else questionEl.setAttribute("data-comparison", "HIGHER")
-
-		const fieldEl = comparePage.querySelector("[data-field]") as HTMLElement;
-		fieldEl.textContent = splitCapitalCase(field);
-
-		const answerEl = comparePage.querySelector("[data-answer]") as HTMLElement;
-		const elements = getRandomElements(2, field);
-
-		const sign = goForLower ? -1 : 1;
-		const correctElement = elements.reduce((outlier, element)=> {
-			const outValue = outlier[field] as number;
-			const curValue = element[field] as number;
-			return sign*curValue > sign*outValue ? element : outlier;
-		});
-		answerEl.textContent = String(correctElement["Element"]);
-
-		const elementEls = [elementLeftEl, elementRightEl];
-		if(Math.random() < .5) [elementEls[0], elementEls[1]] = [elementEls[1], elementEls[0]];
-		for(let i = 0; i < 2; ++i) {
-			populateElementData(elementEls[i], elements[i], field);
-			if(correctElement === elements[i]) {
-				elementEls[i].removeAttribute("data-incorrect");
-			}
-		}
-
-		function clickCB(e: MouseEvent) {
-			const target = e.target as HTMLElement;
-			if(target === inputEl) return;
-			inputEl.removeEventListener("click", clickCB);
-			resolve(!target.hasAttribute("data-incorrect"));
-		}
-		inputEl.addEventListener("click", clickCB);
-
-		revealPage(comparePage)
-	})
-}
-
-function handleOutlierQuestion(field: string) {
-	return new Promise<boolean>(async (resolve) => {
-		await hideAllPages();
-		
-		const dataType = dataTypes[field];
-		const elementTemplate = outlierPage.querySelector("#element") as HTMLTemplateElement;
-		const questionEl = outlierPage.querySelector(".question") as HTMLElement;
-		const fieldEl = questionEl.querySelector("[data-field]") as HTMLElement;
-		const answerEl = outlierPage.querySelector("[data-answer]") as HTMLElement;
-		const inputEl = outlierPage.querySelector(".input") as HTMLButtonElement; 
-		fieldEl.textContent = splitCapitalCase(field);
-		
-		// Checking the dataset shows that all 6 elements is not too much to run into empty edge cases
-		const elementCount = 6;
-		const elements: PeriodicElement[] = [];
-
-		// IDEA: maybe rewrite to use maxElements rather than element count due to
-		// possible bias towards largers groups being the "incorrect" group
-		if(dataType.type === 'NUMBER') {
-			// Pick a "correct" element, then find either lower or higher
-			const findHigherAnswer = Math.random() < .5;
-			const sign = findHigherAnswer ? 1 : -1;
-			const sorted = (tableElements as Record<string,number>[]).toSorted((a,b)=>sign*a[field]-sign*b[field]);
-			const idx = randIntInRange(sorted.length,elementCount);
-			const correctElement = sorted[idx];
-			elements.push(correctElement);
+	return {
+		value: new Promise<boolean>(async (resolve) => {
+			await hideAllPages();
 			
-			const incorrectElements = sorted.slice(0, idx);
-			moveRandomFromArray(incorrectElements, elements, elementCount);
-
+			fieldEl.textContent = splitCapitalCase(field);
 			answerEl.textContent = String(correctElement["Element"]);
-			questionEl.setAttribute("data-comparison", findHigherAnswer ? "HIGHER" : "LOWER");
-		}
-		else {
-      const grouped = Object.groupBy(tableElements, (el) => String(el[field]));
-      const [correctCategory, ...restCategories] = Object.keys(grouped).sort(() => Math.random() - 0.5);
-      const correctGroup = grouped[correctCategory]!;
-      const correctElement = correctGroup[randIntInRange(correctGroup.length)];
-			elements.push(correctElement);
+			if(goForLower) questionEl.setAttribute("data-comparison", "LOWER")
+			else questionEl.setAttribute("data-comparison", "HIGHER")
 
-			for(const category of restCategories.sort(()=>Math.random()-0.5)) {
-				const group = grouped[category]!;
-				if(group.length < elementCount - 1) continue; // too small
-				moveRandomFromArray(group, elements, elementCount);
-				break;
+			for(let i = 0; i < 2; ++i) {
+				populateElementData(elementEls[i], elements[i], field);
+				if(correctElement === elements[i]) {
+					elementEls[i].removeAttribute("data-incorrect");
+				}
 			}
 
-			answerEl.textContent = String(correctElement["Element"]);
-			if(dataType.type === "ENUM") questionEl.setAttribute("data-comparison", "DIFFERENT");
-			else questionEl.setAttribute("data-comparison", correctElement[field] ? "POSITIVE" : "NEGATIVE");
-		}
+			function clickCB(e: MouseEvent) {
+				const target = e.target as HTMLElement;
+				if(target === inputEl) return;
+				inputEl.removeEventListener("click", clickCB);
+				resolve(!target.hasAttribute("data-incorrect"));
+			}
+			inputEl.addEventListener("click", clickCB);
 
-		// Build HTML
-		const elementEls = elements.map((e,i) => {
-			const fragment = elementTemplate.content.cloneNode(true) as DocumentFragment;
-			const btn = fragment.querySelector('.element') as HTMLButtonElement;
-
-			populateElementData(btn, e, field);
-			if(!i) btn.removeAttribute("data-incorrect"); // First element is always the correct one
-
-			return fragment;
-		}).sort(() => Math.random() - .5);
-
-		function clickCB(e: MouseEvent) {
-			const target = e.target as HTMLElement;
-			if(target === inputEl) return;
-			inputEl.removeEventListener("click", clickCB);
-			resolve(!target.hasAttribute("data-incorrect"));
-		}
-		inputEl.addEventListener("click", clickCB);
-		inputEl.replaceChildren(...elementEls);
-
-		revealPage(outlierPage)
-	})
+			revealPage(comparePage)
+		}),
+		cancel() {
+			const incorrectEl = elementEls.find(el => el.hasAttribute("data-incorrect"))!;
+			incorrectEl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+		},
+	}
 }
 
-function handleBooleanQuestion(field: string) {
+function handleOutlierQuestion(field: string): QuestionHandlerReturnType {
+	const dataType = dataTypes[field];
+	const elementCount = 6; // dataset shows 6 elems is a reasonable no.
+	const elements: PeriodicElement[] = [];
+	const findHigherAnswer = Math.random() < .5;
+	let correctElement;
+	
+	const elementTemplate = outlierPage.querySelector("#element") as HTMLTemplateElement;
+	const questionEl = outlierPage.querySelector(".question") as HTMLElement;
+	const fieldEl = questionEl.querySelector("[data-field]") as HTMLElement;
+	const answerEl = outlierPage.querySelector("[data-answer]") as HTMLElement;
+	const inputEl = outlierPage.querySelector(".input") as HTMLElement; 
+
+	// IDEA: maybe rewrite to use maxElements rather than element count due to
+	// possible bias towards largers groups being the "incorrect" group
+	if(dataType.type === 'NUMBER') {
+		// Pick a "correct" element, then find either lower or higher
+		const sign = findHigherAnswer ? 1 : -1;
+		const sorted = (tableElements as Record<string,number>[]).toSorted((a,b)=>sign*a[field]-sign*b[field]);
+		const idx = randIntInRange(sorted.length,elementCount);
+		correctElement = sorted[idx];
+		elements.push(correctElement);
+		
+		const incorrectElements = sorted.slice(0, idx);
+		moveRandomFromArray(incorrectElements, elements, elementCount);
+	}
+	else {
+		const grouped = Object.groupBy(tableElements, (el) => String(el[field]));
+		const [correctCategory, ...restCategories] = Object.keys(grouped).sort(() => Math.random() - 0.5);
+		const correctGroup = grouped[correctCategory]!;
+		correctElement = correctGroup[randIntInRange(correctGroup.length)];
+		elements.push(correctElement);
+
+		for(const category of restCategories.sort(()=>Math.random()-0.5)) {
+			const group = grouped[category]!;
+			if(group.length < elementCount - 1) continue; // too small
+			moveRandomFromArray(group, elements, elementCount);
+			break;
+		}
+	}
+
+	// Build HTML
+	const elementEls = elements.map((e,i) => {
+		const fragment = elementTemplate.content.cloneNode(true) as DocumentFragment;
+		const btn = fragment.querySelector('.element') as HTMLButtonElement;
+
+		populateElementData(btn, e, field);
+		if(!i) btn.removeAttribute("data-incorrect"); // First element is always the correct one
+
+		return fragment;
+	}).sort(() => Math.random() - .5);
+
+	return {
+		value: new Promise<boolean>(async (resolve) => {
+			await hideAllPages();
+			
+			fieldEl.textContent = splitCapitalCase(field);
+			answerEl.textContent = String(correctElement["Element"]);
+			
+			let comparisonStr = "DIFFERENT";
+			switch(dataType.type) {
+				case "NUMBER": comparisonStr = findHigherAnswer ? "HIGHER" : "LOWER"; break;
+				case "BOOLEAN": comparisonStr = correctElement[field] ? "POSITIVE" : "NEGATIVE"; break;
+			}
+			questionEl.setAttribute("data-comparison", comparisonStr);
+
+			function clickCB(e: MouseEvent) {
+				const target = e.target as HTMLElement;
+				if(target === inputEl) return;
+				inputEl.removeEventListener("click", clickCB);
+				resolve(!target.hasAttribute("data-incorrect"));
+			}
+			inputEl.addEventListener("click", clickCB);
+			inputEl.replaceChildren(...elementEls);
+
+			revealPage(outlierPage)
+		}),
+		cancel() {
+			const incorrectEl = inputEl.querySelector("[data-incorrect]")!;
+			incorrectEl.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+		},
+	}
+}
+
+function handleBooleanQuestion(field: string): QuestionHandlerReturnType {
+	const element = getRandomElement();
+	const value = element[field] as boolean;
+
+	const fieldEl = booleanPage.querySelector("[data-field]") as HTMLElement;
+	const elementEl = booleanPage.querySelector("[data-element]") as HTMLElement;
+	const vowelIsNext = booleanPage.querySelector(".vowel-is-next") as HTMLElement;
 	const inputEl = booleanPage.querySelector(".input") as HTMLButtonElement; 
 	const trueEl = inputEl.querySelector("[data-value=\"TRUE\"]") as HTMLButtonElement;
 	const falseEl = inputEl.querySelector("[data-value=\"FALSE\"]") as HTMLButtonElement;
 	trueEl.setAttribute("data-incorrect", "");
 	falseEl.setAttribute("data-incorrect", "");
 
-	return new Promise<boolean>(async (resolve) => {
-		await hideAllPages();
-		
-		const fieldEl = booleanPage.querySelector("[data-field]") as HTMLElement;
-		fieldEl.textContent = splitCapitalCase(field);
 
-		const elementEl = booleanPage.querySelector("[data-element]") as HTMLElement;
-		const element = getRandomElement();
-		elementEl.textContent = String(element["Element"]);
-		
-		const vowelIsNext = booleanPage.querySelector(".vowel-is-next") as HTMLElement;
-		if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
-		else vowelIsNext.classList.add("hide")
-		
-		const value = element[field] as boolean;
-		(value ? trueEl : falseEl).removeAttribute("data-incorrect");
+	return {
+		value: new Promise<boolean>(async (resolve) => {
+			await hideAllPages();
+			
+			fieldEl.textContent = splitCapitalCase(field);
+			elementEl.textContent = String(element["Element"]);
+			(value ? trueEl : falseEl).removeAttribute("data-incorrect");
 
-		function clickCB(e: MouseEvent) {
-			const target = e.target;
-			if(target === inputEl) return;
-			inputEl.removeEventListener("click", clickCB);
-			resolve(value && target === trueEl ||
-						!value && target === falseEl);
-		}
-		inputEl.addEventListener("click", clickCB)
+			if("aeiouAEIOU".includes(field[0])) vowelIsNext.classList.remove("hide")
+			else vowelIsNext.classList.add("hide");
+			
 
-		revealPage(booleanPage)
-	})
+			function clickCB(e: MouseEvent) {
+				const target = e.target;
+				if(target === inputEl) return;
+				inputEl.removeEventListener("click", clickCB);
+				resolve(value && target === trueEl ||
+							!value && target === falseEl);
+			}
+			inputEl.addEventListener("click", clickCB)
+
+			revealPage(booleanPage)
+		}),
+		cancel() {
+			(value ? falseEl : trueEl).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+		},
+	}
 }
 
-function handleCategoryQuestion(field: string) {
-	return new Promise<boolean>(async (resolve, reject) => {
-		await hideAllPages();
-		
-		const dataType = dataTypes[field];
-		if(dataType.type !== 'ENUM') {
-			reject(Error(`"${field}" datatype is not ENUM`));
-			return
-		}
-		const element = getRandomElement();
-		const answer = element[field];
-		if(typeof answer === 'boolean') {
-			reject(Error(`Invalid ${element}[${field}] datatype`));
-			return
-		}
+function handleCategoryQuestion(field: string): QuestionHandlerReturnType {
+	const dataType = dataTypes[field];
+	if(dataType.type !== 'ENUM') {
+		throw Error(`"${field}" datatype is not ENUM`);
+	}
 
-		const fieldEl = categoryPage.querySelector("[data-field]") as HTMLElement;
-		fieldEl.textContent = splitCapitalCase(field);
+	const element = getRandomElement();
+	const answer = element[field];
+	if(typeof answer === 'boolean') {
+		throw Error(`Invalid ${element}[${field}] datatype`);
+	}
 
-		const elementEl = categoryPage.querySelector("[data-element]") as HTMLElement;
-		elementEl.textContent = String(element["Element"]);
+	const values = ["", ...dataType.values];
+	const unit = (dataTypes[field] as NumberType).unit ?? "";
 
-		const answerEl = categoryPage.querySelector("[data-answer]") as HTMLElement;
-		const unit = (dataTypes[field] as NumberType).unit ?? "";
-		answerEl.textContent = `${answer} ${unit}`.trim();
+	const fieldEl = categoryPage.querySelector("[data-field]") as HTMLElement;
+	const elementEl = categoryPage.querySelector("[data-element]") as HTMLElement;
+	const answerEl = categoryPage.querySelector("[data-answer]") as HTMLElement;
+	const selectEl = categoryPage.querySelector("[data-select]") as HTMLSelectElement;
+	const confirmBtn = categoryPage.querySelector("[data-confirm]") as HTMLButtonElement;
 
-		const selectEl = categoryPage.querySelector("[data-select]") as HTMLSelectElement;
-		const values = ["", ...dataType.values];
-		selectEl.replaceChildren(...values.map(value => {
-			const optionEl = document.createElement("option");
-			optionEl.textContent = optionEl.value = String(value);
-			return optionEl;
-		}));
-		selectEl.value = "";
-		selectEl.disabled = false;
-		
+	let canceled = false;
+	return {
+		value: new Promise<boolean>(async (resolve) => {
+			await hideAllPages();
+			
+			fieldEl.textContent = splitCapitalCase(field);
+			elementEl.textContent = String(element["Element"]);
+			answerEl.textContent = `${answer} ${unit}`.trim();
+			selectEl.replaceChildren(...values.map(value => {
+				const optionEl = document.createElement("option");
+				optionEl.textContent = optionEl.value = String(value);
+				return optionEl;
+			}));
+			selectEl.value = "";
+			selectEl.disabled = false;
+			
+			confirmBtn.addEventListener("click", function selectCB() {
+				if(!canceled && selectEl.value === "") return;
+				selectEl.disabled = true;
+				selectEl.removeEventListener("click", selectCB);
+				resolve(selectEl.value === String(answer));
+			})
+			
+			revealPage(categoryPage)
+		}),
+		cancel() {
+			canceled = true;
+			confirmBtn.dispatchEvent(new MouseEvent("click"));
+		},
+	}
+}
 
-		const confirmBtn = categoryPage.querySelector("[data-confirm]") as HTMLButtonElement;
-		confirmBtn.addEventListener("click", function selectCB() {
-			if(selectEl.value === "") return;
-			selectEl.disabled = true;
-			selectEl.removeEventListener("click", selectCB);
-			resolve(selectEl.value === String(answer));
-		})
-		
-		revealPage(categoryPage)
-	})
+interface QuestionHandlerReturnType {
+	value:Promise<boolean>,
+	cancel:()=>void
+};
+type QuestionHandlerType = (field: string) => QuestionHandlerReturnType;
+const questionHandlers: Record<string, QuestionHandlerType | null> = {
+	VALUE: handleValueQuestion,
+	OWNER: handleOwnerQuestion,
+	COMPARE: handleCompareQuestion,
+	BOOLEAN: handleBooleanQuestion,
+	CATEGORY: handleCategoryQuestion,
+	OUTLIER: handleOutlierQuestion,
 }
 
 async function handleMenuSwitch(scoreMsg: string) {
@@ -532,18 +580,13 @@ async function startSurvivalMode() {
 		try {
 			const field = getRandomField();
 			const action = getRandomAction(field, [score, easyThreshold, normalThreshold]);
-			
-			let isCorrect: boolean | null = null; // can be null for debugging purposes
-			switch(action) {
-				case "VALUE":			isCorrect = await handleValueQuestion(field); break;
-				case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
-				case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
-				case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
-				case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
-				case "OUTLIER":		isCorrect = await handleOutlierQuestion(field); break;
-			}
+			if(!action) continue;
 
-			if(isCorrect === null) continue;
+			const questionHandler = questionHandlers[action];
+			if(!questionHandler) continue;
+
+			const isCorrect = await questionHandler(field).value;
+
 			await beforeNextPage(isCorrect);
 
 			if(isCorrect) ++score;
@@ -562,8 +605,12 @@ async function startTimedMode() {
 	let score = 0;
 	let totalQuestions = 0;
 	let keepRunning = true;
+	let cancelCurrQuestion = () => {};
 
-	setTimer(5).then(() => keepRunning = false);
+	setTimer(60).then(() => {
+		keepRunning = false;
+		cancelCurrQuestion();
+	});
 
 	const easyThreshold = 7;
 	const normalThreshold = 20;
@@ -571,18 +618,17 @@ async function startTimedMode() {
 		try {
 			const field = getRandomField();
 			const action = getRandomAction(field, [score, easyThreshold, normalThreshold]);
-			
-			let isCorrect: boolean | null = null; // can be null for debugging purposes
-			switch(action) {
-				case "VALUE":			isCorrect = await handleValueQuestion(field); break;
-				case "OWNER":			isCorrect = await handleOwnerQuestion(field); break;
-				case "COMPARE":		isCorrect = await handleCompareQuestion(field); break;
-				case "BOOLEAN":		isCorrect = await handleBooleanQuestion(field); break;
-				case "CATEGORY":	isCorrect = await handleCategoryQuestion(field); break;
-				case "OUTLIER":		isCorrect = await handleOutlierQuestion(field); break;
-			}
+			if(!action) continue;
 
-			if(isCorrect === null) continue;
+			const questionHandler = questionHandlers[action];
+			if(!questionHandler) continue;
+
+			const res = questionHandler(field);
+
+			cancelCurrQuestion = res.cancel;
+			const isCorrect = await res.value;
+
+			// Should I cancel answer page on timer end?
 			await beforeNextPage(isCorrect);
 
 			++totalQuestions;
