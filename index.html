@@ -18,6 +18,7 @@
 			<div class="correct"></div>
 			<div class="incorrect"></div>
 		</div>
+		<div class="timer" data-hide></div>
 		<div class="page-containers">
 			<section data-page="VALUE">
 				<div class="container around">
@@ -274,10 +275,13 @@
 				<span class="score card">
 					Score: <span data-score>SCORE</span>
 				</span>
-				<button class="start card">
-					<span class="first-time">Start Quiz</span>
-					<span class="repeat">Try Again</span>
-				</button>
+				<div class="modes container">
+					<span>Game Modes</span>
+					<div class="container horizontal">
+						<button data-survival class="card">Survival</button>
+						<button data-timed class="card">Timed</button>
+					</div>
+				</div>
 			</section>
 		</div>
 	</body>
