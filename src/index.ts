@@ -644,9 +644,11 @@ async function startTimedMode() {
 }
 
 function main() {
-	// Bind start btn early
-	const startBtn = menuPage.querySelector(".start") as HTMLButtonElement;
-	startBtn.addEventListener("click", startTimedMode);
+	// Bind start btns early
+	const survivalBtn = menuPage.querySelector("[data-survival]") as HTMLButtonElement;
+	const timedBtn = menuPage.querySelector("[data-timed]") as HTMLButtonElement;
+	survivalBtn.addEventListener("click", startSurvivalMode);
+	timedBtn.addEventListener("click", startTimedMode);
 }
 
 main();

@@ -159,16 +159,22 @@ section[data-page="MENU"] .credits:not(:hover) {
 section[data-page="MENU"]:not([data-has-played]) .score {
 	opacity: 0;
 }
-section[data-page="MENU"] .start {
+section[data-page="MENU"] .modes {
+	width: 50%;
+}
+section[data-page="MENU"] .modes span {
+	display: inline-block;
+	width: 100%;
+	border-bottom: 2px solid black;
+	text-shadow: 1px 1px #bbb;
+	border-radius: 2px;
+}
+section[data-page="MENU"] button {
 	background-color: hsl(50, 100%, 50%);
 	transition: scale 700ms; 
 }
-section[data-page="MENU"] .start:hover {
+section[data-page="MENU"] button:hover {
 	scale: 1.1;
-}
-section[data-page="MENU"][data-has-played] .first-time,
-section[data-page="MENU"]:not([data-has-played]) .repeat {
-	display: none;
 }
 
 /* || MIX OF VARIOUS PAGES */
