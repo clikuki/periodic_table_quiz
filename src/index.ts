@@ -229,8 +229,8 @@ function setTimer(seconds: number) {
 
 function beforeNextPage(correct: boolean) {
 	return new Promise<MouseEvent>((resolve) => {
-		document.body.setAttribute("data-result", correct ? "CORRECT" : "INCORRECT")
-		requestAnimationFrame(() => document.body.addEventListener("click", resolve, { once: true }))
+		document.body.setAttribute("data-result", correct ? "CORRECT" : "INCORRECT");
+		requestAnimationFrame(() => document.body.addEventListener("click", resolve, { once: true }));
 	})
 }
 
@@ -654,8 +654,21 @@ function main() {
 	// Bind start btns early
 	const survivalBtn = menuPage.querySelector("[data-survival]") as HTMLButtonElement;
 	const timedBtn = menuPage.querySelector("[data-timed]") as HTMLButtonElement;
-	survivalBtn.addEventListener("click", startSurvivalMode);
-	timedBtn.addEventListener("click", startTimedMode);
+
+	function runAfter(cb: Function) {
+		return function() {
+			if(!menuPage.hasAttribute("data-active")) return;
+
+			if(document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+
+			cb();
+		}
+	}
+
+	survivalBtn.addEventListener("click", runAfter(startSurvivalMode));
+	timedBtn.addEventListener("click", runAfter(startTimedMode));
 }
 
 main();
