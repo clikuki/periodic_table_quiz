@@ -158,6 +158,7 @@ section[data-page="MENU"] .credits:not(:hover) {
 }
 section[data-page="MENU"]:not([data-has-played]) .score {
 	opacity: 0;
+	user-select: none;
 }
 section[data-page="MENU"] .modes {
 	width: 50%;

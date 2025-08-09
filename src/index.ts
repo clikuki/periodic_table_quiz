@@ -155,20 +155,27 @@ function hideAllPages() {
 function revealPage(page: HTMLElement, revertBackground = true) {
 	if(revertBackground) document.body.setAttribute("data-result", "NORMAL");
 
-	// Page is already open
-	if(page.hasAttribute("data-active")) return;
+	return new Promise<void>((resolve) => {
+		// Page is already open
+		if(page.hasAttribute("data-active")) {
+			resolve();
+			return;
+		}
 
-	// If transition event fails to fire for any reason, timer will be used as fallback
-	const timer = setTimeout(() => {
-		page.removeEventListener("transitionend", eventCB);
-	}, timeoutDelay)
-	const eventCB = (e: TransitionEvent) => {
-		if(e.target !== page) return;
-		clearTimeout(timer);
-	}
+		// If transition event fails to fire for any reason, timer will be used as fallback
+		const timer = setTimeout(() => {
+			page.removeEventListener("transitionend", eventCB);
+			resolve();
+		}, timeoutDelay)
+		const eventCB = (e: TransitionEvent) => {
+			if(e.target !== page) return;
+			clearTimeout(timer);
+			resolve();
+		}
 
-	page.addEventListener("transitionend", eventCB, { once: true });
-	page.setAttribute("data-active", "");
+		page.addEventListener("transitionend", eventCB, { once: true });
+		page.setAttribute("data-active", "");
+	});
 }
 
 function isApproxEqual(input: string, value: number): boolean {
@@ -248,14 +255,14 @@ function handleValueQuestion(field: string): QuestionHandlerReturnType {
 			elementEl.textContent = String(element["Element"]);
 			answerEl.textContent = `${answer} ${unit}`.trim();
 			inputEl.value = "";
-
+			inputEl.focus();
 			inputEl.addEventListener("keydown", function inputCB(e: KeyboardEvent) {
 				if(e.key !== "Enter") return;
 				inputEl.removeEventListener("keydown", inputCB);
 				resolve(isApproxEqual(inputEl.value, answer));
 			})
 			
-			revealPage(valuePage)
+			revealPage(valuePage);
 		}),
 		cancel() {
 			inputEl.dispatchEvent(new KeyboardEvent('keydown', { key: "Enter" }));
