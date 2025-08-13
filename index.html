@@ -256,7 +256,7 @@
 				</template>
 			</section>
 			<section data-page="MENU" data-active>
-				<!-- data-has-played -->
+				<!-- data-has-played, data-new-highscore -->
 				<div class="card header">
 					<span class="ignore" style="text-transform: uppercase; grid-row: 1 / 3; writing-mode: vertical-rl; rotate: 180deg;">The</span>
 					<span class="element nonmetal">P</span>
@@ -272,9 +272,15 @@
 					<span class="ignore" style="text-transform: uppercase; grid-column: 5 / -1;">Quiz</span>
 				</div>
 				<a class="credits card" href="https://github.com/clikuki">By: Clikuki</a>
-				<span class="score card">
-					Score: <span data-score>SCORE</span>
-				</span>
+				<div class="container" style="gap: 0;">
+					<span class="new-highscore card">New Highscore!</span>
+					<div class="scores card">
+						<span>Score:</span>
+						<span data-score>1</span>
+						<span>Hi-Score:</span>
+						<span data-highscore>10</span>
+					</div>
+				</div>
 				<div class="modes container">
 					<span>Game Modes</span>
 					<div class="container horizontal">

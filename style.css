@@ -156,10 +156,32 @@ section[data-page="MENU"] .credits:not(:hover) {
 	color: black;
 	text-decoration: none;
 }
-section[data-page="MENU"]:not([data-has-played]) .score {
+section[data-page="MENU"] .new-highscore {
+	background-color: hsl(50, 100%, 50%);
+	padding: 0 1rem;
+	text-transform: uppercase;
+}
+section[data-page="MENU"] .scores {
+	display: grid;
+	grid-template-columns: max-content max-content;
+	column-gap: 1rem;
+	width: max-content;
+}
+section[data-page="MENU"] .scores :nth-of-type(odd) {
+	text-align: left;
+}
+section[data-page="MENU"] .scores :nth-of-type(even) {
+	text-align: right;
+}
+section[data-page="MENU"]:not([data-has-played]) .scores {
 	opacity: 0;
 	user-select: none;
 }
+section[data-page="MENU"][data-new-highscore] .scores :nth-child(n+3),
+section[data-page="MENU"]:not([data-new-highscore]) .new-highscore {
+	display: none;
+}
+
 section[data-page="MENU"] .modes {
 	width: 50%;
 }
@@ -442,6 +464,33 @@ body:not([data-result="NORMAL"]) .table .element:not([data-correct]) {
 	background-color: hsl(0, 100%, 100%);
 	padding: .8rem 3rem;
 	box-shadow: .2ch .2ch 0 black;
+}
+
+.shrink {
+	animation: 1s cubic-bezier(.6,-0.28,.74,.05) 1 forwards shrink;
+}
+.grow {
+	animation: 1s cubic-bezier(.18,.89,.32,1.28) 1 forwards grow;
+}
+@keyframes shrink {
+	from {
+		scale: 1;
+		rotate: 0;
+	}
+	to {
+		scale: 0;
+		rotate: 360deg;
+	}
+}
+@keyframes grow {
+	from {
+		scale: 0;
+		rotate: 0;
+	}
+	to {
+		scale: 1;
+		rotate: 360deg;
+	}
 }
 
 button {

@@ -227,6 +227,19 @@ function setTimer(seconds: number) {
 	})
 }
 
+class Highscores {
+	private constructor() {}
+	static get(mode: string) {
+		return +(localStorage.getItem(mode) ?? 0);
+	}
+	static update(mode: string, score: number) {
+		const old = this.get(mode);
+		if(old >= score) return old;
+		localStorage.setItem(mode, String(score));
+		return score;
+	}
+}
+
 function beforeNextPage(correct: boolean) {
 	return new Promise<MouseEvent>((resolve) => {
 		document.body.setAttribute("data-result", correct ? "CORRECT" : "INCORRECT");
@@ -567,13 +580,18 @@ const questionHandlers: Record<string, QuestionHandlerType | null> = {
 	OUTLIER: handleOutlierQuestion,
 }
 
-async function handleMenuSwitch(scoreMsg: string) {
+async function handleMenuSwitch(score: number, highscore: number) {
 	await hideAllPages();
+	document.body.setAttribute("data-result", "NORMAL");
 	
-	menuPage.setAttribute('data-has-played', "");
+	menuPage.setAttribute("data-has-played", "");
+	if(score > highscore) menuPage.setAttribute("data-new-highscore", "");
+	else menuPage.removeAttribute("data-new-highscore");
 
 	const scoreEl = menuPage.querySelector("[data-score]") as HTMLElement;
-	scoreEl.textContent = scoreMsg;
+	const highscoreEl = menuPage.querySelector("[data-highscore]") as HTMLElement;
+	scoreEl.textContent = String(score);
+	highscoreEl.textContent = String(highscore);
 	
 	revealPage(menuPage, false);
 }
@@ -605,7 +623,10 @@ async function startSurvivalMode() {
 		}
 	}
 
-	handleMenuSwitch(String(score));
+	const modeKey = "SURVIVAL";
+	const prevHighscore = Highscores.get(modeKey);
+	Highscores.update(modeKey, score);
+	handleMenuSwitch(score, prevHighscore);
 }
 
 async function startTimedMode() {
@@ -647,7 +668,10 @@ async function startTimedMode() {
 		}
 	}
 	
-	handleMenuSwitch(`${score}/${totalQuestions}`);
+	const modeKey = "TIMED";
+	const prevHighscore = Highscores.get(modeKey);
+	Highscores.update(modeKey, score);
+	handleMenuSwitch(score, prevHighscore);
 }
 
 function main() {
