@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Chemical Properties</title>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Acme&display=swap" rel="stylesheet">
+		<script src="build/index.js" type="module" defer></script>
+	</head>
+	<!-- <body data-result="INCORRECT"> -->
+	<!-- <body data-result="CORRECT"> -->
+	<body data-result="NORMAL">
+		<div class="backgrounds">
+			<div class="normal"></div>
+			<div class="correct"></div>
+			<div class="incorrect"></div>
+		</div>
+		<div class="timer" data-hide></div>
+		<div class="page-containers">
+			<section data-page="VALUE">
+				<div class="container around">
+					<div class="question card">
+						What is the<br>
+						<span data-field>FIELD</span><br>
+						of <span data-element>ELEMENT</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="container centered input">
+					<div class="card">
+						<input type="text" data-input />
+					</div>
+				</div>
+			</section>
+			<section data-page="OWNER">
+				<div class="container around">
+					<div class="question card">
+						Which element has a<span class="vowel-is-next hide">n</span><br>
+						<span data-field>ATOMIC NUMBER</span> of <span data-value>VALUE</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="table">
+					<!-- data-correct -->
+					<button class="element nonmetal gas" data-value="HYDROGEN">H</button>
+					<button class="element noble gas" data-value="HELIUM">He</button>
+					<button class="element alkali solid" data-value="LITHIUM">Li</button>
+					<button class="element alkaline solid" data-value="BERYLLIUM">Be</button>
+					<button class="element metalloid solid" data-value="BORON">B</button>
+					<button class="element nonmetal solid" data-value="CARBON">C</button>
+					<button class="element nonmetal gas" data-value="NITROGEN">N</button>
+					<button class="element nonmetal gas" data-value="OXYGEN">O</button>
+					<button class="element nonmetal gas" data-value="FLUORINE">F</button>
+					<button class="element noble gas" data-value="NEON">Ne</button>
+					<button class="element alkali solid" data-value="SODIUM">Na</button>
+					<button class="element alkaline solid" data-value="MAGNESIUM">Mg</button>
+					<button class="element poor solid" data-value="ALUMINUM">Al</button>
+					<button class="element metalloid solid" data-value="SILICON">Si</button>
+					<button class="element nonmetal solid" data-value="PHOSPHORUS">P</button>
+					<button class="element nonmetal solid" data-value="SULFUR">S</button>
+					<button class="element nonmetal gas" data-value="CHLORINE">Cl</button>
+					<button class="element noble gas" data-value="ARGON">Ar</button>
+					<button class="element alkali solid" data-value="POTASSIUM">K</button>
+					<button class="element alkaline solid" data-value="CALCIUM">Ca</button>
+					<button class="element transition solid" data-value="SCANDIUM">Sc</button>
+					<button class="element transition solid" data-value="TITANIUM">Ti</button>
+					<button class="element transition solid" data-value="VANADIUM">V</button>
+					<button class="element transition solid" data-value="CHROMIUM">Cr</button>
+					<button class="element transition solid" data-value="MANGANESE">Mn</button>
+					<button class="element transition solid" data-value="IRON">Fe</button>
+					<button class="element transition solid" data-value="COBALT">Co</button>
+					<button class="element transition solid" data-value="NICKEL">Ni</button>
+					<button class="element transition solid" data-value="COPPER">Cu</button>
+					<button class="element transition solid" data-value="ZINC">Zn</button>
+					<button class="element poor solid" data-value="GALLIUM">Ga</button>
+					<button class="element metalloid solid" data-value="GERMANIUM">Ge</button>
+					<button class="element metalloid solid" data-value="ARSENIC">As</button>
+					<button class="element nonmetal solid" data-value="SELENIUM">Se</button>
+					<button class="element nonmetal liquid" data-value="BROMINE">Br</button>
+					<button class="element noble gas" data-value="KRYPTON">Kr</button>
+					<button class="element alkali solid" data-value="RUBIDIUM">Rb</button>
+					<button class="element alkaline solid" data-value="STRONTIUM">Sr</button>
+					<button class="element transition solid" data-value="YTTRIUM">Y</button>
+					<button class="element transition solid" data-value="ZIRCONIUM">Zr</button>
+					<button class="element transition solid" data-value="NIOBIUM">Nb</button>
+					<button class="element transition solid" data-value="MOLYBDENUM">Mo</button>
+					<button class="element transition solid" data-value="TECHNETIUM">Tc</button>
+					<button class="element transition solid" data-value="RUTHENIUM">Ru</button>
+					<button class="element transition solid" data-value="RHODIUM">Rh</button>
+					<button class="element transition solid" data-value="PALLADIUM">Pd</button>
+					<button class="element transition solid" data-value="SILVER">Ag</button>
+					<button class="element transition solid" data-value="CADMIUM">Cd</button>
+					<button class="element poor solid" data-value="INDIUM">In</button>
+					<button class="element poor solid" data-value="TIN">Sn</button>
+					<button class="element metalloid solid" data-value="ANTIMONY">Sb</button>
+					<button class="element metalloid solid" data-value="TELLURIUM">Te</button>
+					<button class="element nonmetal solid" data-value="IODINE">I</button>
+					<button class="element noble gas" data-value="XENON">Xe</button>
+					<button class="element alkali solid" data-value="CESIUM">Cs</button>
+					<button class="element alkaline solid" data-value="BARIUM">Ba</button>
+					<button class="element transition solid" data-value="HAFNIUM">Hf</button>
+					<button class="element transition solid" data-value="TANTALUM">Ta</button>
+					<button class="element transition solid" data-value="TUNGSTEN">W</button>
+					<button class="element transition solid" data-value="RHENIUM">Re</button>
+					<button class="element transition solid" data-value="OSMIUM">Os</button>
+					<button class="element transition solid" data-value="IRIDIUM">Ir</button>
+					<button class="element transition solid" data-value="PLATINUM">Pt</button>
+					<button class="element transition solid" data-value="GOLD">Au</button>
+					<button class="element transition liquid" data-value="MERCURY">Hg</button>
+					<button class="element poor solid" data-value="THALLIUM">Tl</button>
+					<button class="element poor solid" data-value="LEAD">Pb</button>
+					<button class="element poor solid" data-value="BISMUTH">Bi</button>
+					<button class="element metalloid solid" data-value="POLONIUM">Po</button>
+					<button class="element metalloid solid" data-value="ASTATINE">At</button>
+					<button class="element noble gas" data-value="RADON">Rn</button>
+					<button class="element alkali solid" data-value="FRANCIUM">Fr</button>
+					<button class="element alkaline solid" data-value="RADIUM">Ra</button>
+					<button class="element transition solid" data-value="RUTHERFORDIUM">Rf</button>
+					<button class="element transition solid" data-value="DUBNIUM">Db</button>
+					<button class="element transition solid" data-value="SEABORGIUM">Sg</button>
+					<button class="element transition solid" data-value="BOHRIUM">Bh</button>
+					<button class="element transition solid" data-value="HASSIUM">Hs</button>
+					<button class="element transition solid" data-value="MEITNERIUM">Mt</button>
+					<button class="element transition solid" data-value="DARMSTADTIUM">Ds</button>
+					<button class="element transition solid" data-value="ROENTGENIUM">Rg</button>
+					<button class="element transition solid" data-value="COPERNICIUM">Cn</button>
+					<button class="element poor solid" data-value="NIHONIUM">Nh</button>
+					<button class="element poor solid" data-value="FLEROVIUM">Fl</button>
+					<button class="element poor solid" data-value="MOSCOVIUM">Mc</button>
+					<button class="element poor solid" data-value="LIVERMORIUM">Lv</button>
+					<button class="element metalloid solid" data-value="TENNESSINE">Ts</button>
+					<button class="element noble gas" data-value="OGANESSON">Og</button>
+
+					<div class="spacer"></div>
+					<button class="element lanthanoid solid" data-value="LANTHANUM">La</button>
+					<button class="element lanthanoid solid" data-value="CERIUM">Ce</button>
+					<button class="element lanthanoid solid" data-value="PRASEODYMIUM">Pr</button>
+					<button class="element lanthanoid solid" data-value="NEODYMIUM">Nd</button>
+					<button class="element lanthanoid solid" data-value="PROMETHIUM">Pm</button>
+					<button class="element lanthanoid solid" data-value="SAMARIUM">Sm</button>
+					<button class="element lanthanoid solid" data-value="EUROPIUM">Eu</button>
+					<button class="element lanthanoid solid" data-value="GADOLINIUM">Gd</button>
+					<button class="element lanthanoid solid" data-value="TERBIUM">Tb</button>
+					<button class="element lanthanoid solid" data-value="DYSPROSIUM">Dy</button>
+					<button class="element lanthanoid solid" data-value="HOLMIUM">Ho</button>
+					<button class="element lanthanoid solid" data-value="ERBIUM">Er</button>
+					<button class="element lanthanoid solid" data-value="THULIUM">Tm</button>
+					<button class="element lanthanoid solid" data-value="YTTERBIUM">Yb</button>
+					<button class="element lanthanoid solid" data-value="LUTETIUM">Lu</button>
+					<button class="element actinoid solid" data-value="ACTINIUM">Ac</button>
+					<button class="element actinoid solid" data-value="THORIUM">Th</button>
+					<button class="element actinoid solid" data-value="PROTACTINIUM">Pa</button>
+					<button class="element actinoid solid" data-value="URANIUM">U</button>
+					<button class="element actinoid solid" data-value="NEPTUNIUM">Np</button>
+					<button class="element actinoid solid" data-value="PLUTONIUM">Pu</button>
+					<button class="element actinoid solid" data-value="AMERICIUM">Am</button>
+					<button class="element actinoid solid" data-value="CURIUM">Cm</button>
+					<button class="element actinoid solid" data-value="BERKELIUM">Bk</button>
+					<button class="element actinoid solid" data-value="CALIFORNIUM">Cf</button>
+					<button class="element actinoid solid" data-value="EINSTEINIUM">Es</button>
+					<button class="element actinoid solid" data-value="FERMIUM">Fm</button>
+					<button class="element actinoid solid" data-value="MENDELEVIUM">Md</button>
+					<button class="element actinoid solid" data-value="NOBELIUM">No</button>
+					<button class="element actinoid solid" data-value="LAWRENCIUM">Lr</button>
+				</div>
+			</section>
+			<section data-page="BOOLEAN">
+				<div class="container around">
+					<div class="question card">
+						Is <span data-element>ELEMENT</span> a<span class="vowel-is-next hide">n</span> <span data-field>FIELD</span> element?
+					</div>
+				</div>
+				<div class="container horizontal around input">
+					<!-- data-incorrect -->
+					<button class="card" data-value="TRUE">YES</button>
+					<button class="card" data-value="FALSE">NO</button>
+				</div>
+			</section>
+			<section data-page="COMPARE">
+				<div class="container around">
+					<div class="question card" data-comparison="LOWER">
+						Which element has a <span class="lower">lower</span><span class="higher">higher</span> <span data-field>FIELD</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="input">
+					<!-- data-incorrect -->
+					<button class="element" data-left data-incorrect>
+						<span data-symbol>A</span>
+						<span data-element-value>A</span>
+					</button>
+					<button class="element" data-right data-incorrect>
+						<span data-symbol>B</span>
+						<span data-element-value>B</span>
+					</button>
+				</div>
+			</section>
+			<section data-page="CATEGORY">
+				<div class="container around">
+					<div class="question card">
+						What is the <span data-field>FIELD</span> of
+						<span data-element>ELEMENT</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="input">
+					<select class="card" data-select>
+						<!-- <option value="" data-empty>N/A</option> -->
+					</select>
+					<button class="card" data-confirm>CONFIRM</button>
+				</div>
+			</section>
+			<section data-page="OUTLIER">
+				<div class="container around">
+					<!-- data-comparison = LOWER HIGHER DIFFERENT NEGATIVE POSITIVE -->
+					<div class="question card" data-comparison="LOWER">
+						Which among these elements
+						<span class="higher">has a higher</span>
+						<span class="lower">has a lower</span>
+						<span class="different">has a different</span>
+						<span class="positive">is</span>
+						<span class="negative">is not</span><br>
+						<span data-field>FIELD</span>?
+					</div>
+					<div class="correction card">
+						<span class="text">Correct Answer</span>
+						<div class="line"></div>
+						<span data-answer>ANSWER</span>
+					</div>
+				</div>
+				<div class="input"></div>
+				<template id="element">
+					<button class="element" data-incorrect>
+						<span data-symbol></span>
+						<span data-element-value></span>
+					</button>
+				</template>
+			</section>
+			<section data-page="MENU" data-active>
+				<!-- data-has-played, data-new-highscore -->
+				<div class="card header">
+					<span class="ignore" style="text-transform: uppercase; grid-row: 1 / 3; writing-mode: vertical-rl; rotate: 180deg;">The</span>
+					<span class="element nonmetal">P</span>
+					<span class="element lanthanoid">Er</span>
+					<span class="element nonmetal">I</span>
+					<span class="element nonmetal">O</span>
+					<span class="element unknown">D</span>
+					<span class="element nonmetal">I</span>
+					<span class="element nonmetal">C</span>
+					<span class="element transition" style="grid-column: 2;">Ta</span>
+					<span class="element metalloid">B</span>
+					<span class="element unknown">Le</span>
+					<span class="ignore" style="text-transform: uppercase; grid-column: 5 / -1;">Quiz</span>
+				</div>
+				<a class="credits card" href="https://github.com/clikuki">By: Clikuki</a>
+				<div class="container" style="gap: 0;">
+					<span class="new-highscore card">New Highscore!</span>
+					<div class="scores card">
+						<span>Score:</span>
+						<span data-score>1</span>
+						<span>Hi-Score:</span>
+						<span data-highscore>10</span>
+					</div>
+				</div>
+				<div class="modes container">
+					<span class="head">Game Modes</span>
+					<div class="container horizontal">
+						<button data-survival class="start card">
+							Survival
+							<span class="desc">Answer continuously without making a mistake!</span>
+						</button>
+						<button data-timed class="start card">
+							Timed
+							<span class="desc">Answer as many questions as possible within 1 minute!</span>
+						</button>
+					</div>
+				</div>
+			</section>
+		</div>
+	</body>
+</html>
